@@ -1,4 +1,4 @@
-# Lecture 2 — Anatomy of Coding Agents
+# Lecture 3 — Anatomy of Coding Agents
 
 ## Topics
 - How LLMs work

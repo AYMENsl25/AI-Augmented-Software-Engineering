@@ -1,4 +1,4 @@
-# Week 3 — Spec-Driven Development with Spec Kit
+# Week 2 — Spec-Driven Development with Spec Kit
 
 **Estimated time: ~3 hours.**
 
@@ -19,15 +19,15 @@ To keep this to ~3 hours, the feature is **pre-scoped** for you (below).
 
 ## Prerequisites
 - Python **3.11+** and [**uv**](https://github.github.io/spec-kit/install/uv.html).
-- The coding agent you set up in Week 1 (Antigravity by default).
+- The coding agent you set up in Week 0 (Antigravity by default).
 
 ## Setup
 Replace `copilot` with your agent's
 [integration key](https://github.github.io/spec-kit/reference/integrations.html):
 ```bash
 uv tool install specify-cli
-specify init spec-kit-week3 --integration copilot
-cd spec-kit-week3
+specify init spec-kit-week2 --integration copilot
+cd spec-kit-week2
 ```
 Launch your agent **inside the project directory**. The `/speckit-*` skills run in the
 agent's **chat**, not the terminal.
@@ -50,7 +50,7 @@ Repeat **implement → converge** until it reports **Converged**. At least once,
 artifact is vague or wrong, **refine the spec/plan** (not the code) and note what changed.
 
 ## Deliverables
-**Submit the GitHub repository link** for `spec-kit-week3/` (add the instructor as a
+**Submit the GitHub repository link** for `spec-kit-week2/` (add the instructor as a
 collaborator if private), including:
 1. The committed **spec artifacts** in `.specify/` (not gitignored).
 2. The **working page** produced by `/speckit-implement`.

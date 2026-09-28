@@ -10,7 +10,7 @@ a reusable workflow, and use role-specialized **subagents** to ship one feature.
 A working starter app is in [`starter/`](starter/) — you don't build the app, you make
 it agent-ready.
 
-> **IDE-agnostic.** Use the agent from Week 1 (**Antigravity** by default). The concepts
+> **IDE-agnostic.** Use the agent from Week 0 (**Antigravity** by default). The concepts
 > below exist in every modern agent; map each to your agent's equivalent and note it.
 
 ## Learning goals

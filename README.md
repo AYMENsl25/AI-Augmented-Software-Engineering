@@ -10,9 +10,9 @@ AI-augmented software engineering is the practice of using AI systems — code a
 
 ## Lectures
 
-1. [The AI-Native Software Engineer](lectures/01-the-ai-native-software-engineer/) — the vibe-coding trap, the role transformation from implementer to orchestrator, human-in-the-loop, and career implications.
-2. [Anatomy of Coding Agents](lectures/02-anatomy-of-coding-agents/) — how LLMs work, the model landscape, why LLMs are good at coding, and coding agents under the hood.
-3. [Specs-Driven Development](lectures/03-specs-driven-development/) — the agentic SDLC, when SDD fits, Plan Mode, SDD maturity levels, good specs, and SDD frameworks.
+0. [Setup Environments](lectures/00-setup-environments/) — install Git, GitHub, Python, and a coding agent before the rest of the course.
+2. [Specs-Driven Development](lectures/02-specs-driven-development/) — the agentic SDLC, when SDD fits, Plan Mode, SDD maturity levels, good specs, and SDD frameworks.
+3. [Anatomy of Coding Agents](lectures/03-anatomy-of-coding-agents/) — how LLMs work, the model landscape, why LLMs are good at coding, and coding agents under the hood.
 4. [Advanced Context Management](lectures/04-advanced-context-management/) — a taxonomy of context, context assembly and discovery, the agent runtime pipeline, session management, and MCP fundamentals.
 5. [Agentic Codebase Structure](lectures/05-agentic-codebase-structure/) — skills, rules, and guardrails; CLAUDE.md / AGENTS.md / SKILL.md / intent.md; hooks; and subagent patterns.
 6. [Agentic Code Review and Testing](lectures/06-agentic-code-review-and-testing/) — deterministic guardrails, LLM-based review, safe deployment, runtime safety, and monitoring agents.

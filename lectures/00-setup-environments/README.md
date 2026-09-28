@@ -1,4 +1,4 @@
-# Lecture 1 — The AI-Native Software Engineer
+# Lecture 0 — Setup Environments
 
 ## Topics
 - The Vibe-Coding Trap

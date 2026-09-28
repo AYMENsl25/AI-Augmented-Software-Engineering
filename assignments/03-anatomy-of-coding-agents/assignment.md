@@ -1,4 +1,4 @@
-# Week 2 — Prompting Techniques: The Support-Desk Assistant
+# Week 3 — Prompting Techniques: The Support-Desk Assistant
 
 **Estimated time: ~3 hours.**
 

@@ -1,4 +1,4 @@
-# Lecture 3 — Specs-Driven Development
+# Lecture 2 — Specs-Driven Development
 
 ## Topics
 - Agentic software development life cycle

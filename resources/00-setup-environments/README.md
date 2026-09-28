@@ -1,4 +1,4 @@
-# Resources — Lecture 1: The AI-Native Software Engineer
+# Resources — Lecture 0: Setup Environments
 
 Papers, links, and supplementary reading for this lecture. Add materials here.
 

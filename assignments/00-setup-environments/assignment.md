@@ -1,4 +1,4 @@
-# Week 1 — Set Up Your AI-Native Environment
+# Week 0 — Setup Environments
 
 **Estimated time: ~2–3 hours.**
 
