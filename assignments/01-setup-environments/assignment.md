@@ -84,8 +84,10 @@ brew install gh
 # Windows (via Winget)
 winget install GitHub.cli
 
-# Linux
-# Visit https://github.com/cli/cli#installation
+# Linux (Ubuntu/Debian)
+# For full keyring setup, visit [https://github.com/cli/cli#installation](https://github.com/cli/cli#installation)
+sudo apt update
+sudo apt install gh
 
 gh auth login
 ```
