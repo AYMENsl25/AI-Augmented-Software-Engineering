@@ -39,6 +39,7 @@ free Gemini student account** (steps below).
    ```
 
 ## Part 2 — Get a coding agent
+Tip: If you are already using VS Code, you can simply search and install "Google Antigravity" directly as an extension from the VS Code marketplace instead of downloading a standalone application.
 
 ### Option A — You already have one
 Confirm it works: open your editor, start the agent, and have it make a trivial
