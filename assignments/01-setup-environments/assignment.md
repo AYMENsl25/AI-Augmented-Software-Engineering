@@ -38,12 +38,12 @@ free Gemini student account** (steps below).
    Students: apply for the [GitHub Student Developer Pack](https://education.github.com/pack).
 3. **A terminal + editor** — VS Code is recommended (Antigravity is a VS Code–based
    editor, so this transfers directly).
-```markdown
 4. **A language runtime** for later weeks — install **Python 3.12** (Miniconda/Anaconda
    or `uv` are both fine). Verify:
    ```bash
    python --version
    # Note for Linux/macOS users: You may need to run python3 --version instead
+   ```
 
 ## Part 2 — Get a coding agent
 Tip: If you are already using VS Code, you can simply search and install "Google Antigravity" directly as an extension from the VS Code marketplace instead of downloading a standalone application.
