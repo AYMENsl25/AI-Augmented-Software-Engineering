@@ -145,21 +145,12 @@ gh pr create \
 After you submit, the instructor will review the PR. If it is useful and correct,
 your suggestion may be merged into the official course materials.
 
-## Deliverables
-Submit:
-
-1. A link to your pull request.
-2. A short summary of what you improved and why.
-3. Confirmation that `gh auth status` shows you are authenticated.
-4. A screenshot of your coding agent completing a small setup or editing task.
-5. **What you learned:** 2-3 sentences on what surprised you about working through
-   Git, GitHub CLI, and an agent-assisted workflow.
+## Submission
+Your pull request appears on the course repo. The instructor will review it there.
 
 ## Evaluation (pass/fail, 20 pts)
-- 5 — GitHub CLI installed and authenticated.
-- 5 — Branch, commit, push, and PR created correctly.
-- 5 — Improvement is thoughtful, scoped, and improves assignment clarity.
-- 5 — PR description/deliverable explains what changed and why.
+- 10 — PR opened against the course repo from a feature branch.
+- 10 — Improvement is thoughtful, scoped, and improves assignment clarity.
 
 ## Notes
 - Tool links and student-verification flows change often; if a link or step has moved,
