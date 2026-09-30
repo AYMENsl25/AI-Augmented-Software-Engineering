@@ -5,7 +5,7 @@
 ## Overview
 Before we can practice AI-augmented software engineering, everyone needs a working
 **coding agent** and a clean development environment. This week is pass/fail setup:
-get your tools installed, verified, and pushed to a repo so you're ready for Week 2.
+get your tools installed, verified, and ready to use for Week 2.
 
 If you already use a coding agent (Claude Code, Cursor, GitHub Copilot, etc.), you
 may keep it. **If you do not have one, you will set up Google Antigravity backed by a
@@ -15,6 +15,7 @@ free Gemini student account** (steps below).
 - Have a functioning coding agent you can invoke from your editor and/or terminal.
 - Understand the difference between chat, inline completion, and agentic modes.
 - Establish the Git + GitHub workflow we'll use all semester.
+- Use GitHub CLI to open a pull request that improves shared course materials.
 
 ---
 
@@ -67,29 +68,98 @@ Use this path if you don't already have a coding agent.
 > sign in with a standard (free-tier) Google account to complete the setup task, then
 > attach the student plan once it's approved. Note this in your writeup.
 
-## Part 3 — Prove it end-to-end
-1. Create a new GitHub repo named `ai-native-week1` (public or private — if private,
-   add the instructor as a collaborator).
-2. Clone it locally and open it in your editor/agent.
-3. Using **your coding agent** (not by hand), have it generate a small program of your
-   choice (e.g. a CLI that reverses a string, a FizzBuzz, a temperature converter).
-4. Review the agent's output line-by-line, fix anything wrong, then commit and push.
+## Part 3 — Improve course materials with GitHub CLI
+
+This week you will practice the Git workflow we will use all semester by proposing a
+small improvement to the course materials.
+
+### Install GitHub CLI
+
+Install the GitHub CLI (`gh`) and authenticate:
+
+```bash
+# macOS
+brew install gh
+
+# Windows (via Winget)
+winget install GitHub.cli
+
+# Linux
+# Visit https://github.com/cli/cli#installation
+
+gh auth login
+```
+
+Follow the prompts and make sure `gh auth status` confirms you are logged in.
+
+### Clone the course repo
+
+```bash
+git clone https://github.com/scottyUX/AI-Augmented-Software-Engineering.git
+cd AI-Augmented-Software-Engineering
+```
+
+### What to improve
+
+Read through **2-3 assignment files** in the `assignments/` folder. Pick one small
+improvement that would make an assignment clearer for future students. Good options:
+
+- Add a clarifying example.
+- Fix confusing wording.
+- Add a helpful resource link.
+- Improve formatting.
+- Suggest a better test case.
+- Add a tip or common mistake to watch for.
+
+Use your coding agent if helpful, but you are responsible for reviewing the final
+change and making sure it is accurate.
+
+### Create a branch, commit, and open a PR
+
+Create a feature branch:
+
+```bash
+git checkout -b improve-assignment-clarity
+```
+
+Make your edit to the assignment file(s), then commit with a clear message:
+
+```bash
+git add assignments/
+git commit -m "Clarify assignment requirements for better student understanding
+
+- Rewrote confusing section about expected output
+- Added example showing what not to do
+- Fixed typo in code snippet"
+```
+
+Push your branch and open a PR:
+
+```bash
+git push -u origin improve-assignment-clarity
+gh pr create \
+  --title "Improve clarity in Assignment 2" \
+  --body "Explains what I improved and why it helps future students."
+```
+
+After you submit, the instructor will review the PR. If it is useful and correct,
+your suggestion may be merged into the official course materials.
 
 ## Deliverables
-Submit a link to your `ai-native-week1` repo containing:
-1. The small program your agent generated.
-2. A `writeup.md` with:
-   - Which coding agent you set up (Antigravity + Gemini, or your existing tool) and
-     the version.
-   - A screenshot of your agent completing a task.
-   - The exact prompt(s) you gave it, and any corrections you had to make by hand.
-   - **What you learned:** 2–3 sentences on what surprised you about working *through*
-     an agent instead of typing the code yourself.
+Submit:
+
+1. A link to your pull request.
+2. A short summary of what you improved and why.
+3. Confirmation that `gh auth status` shows you are authenticated.
+4. A screenshot of your coding agent completing a small setup or editing task.
+5. **What you learned:** 2-3 sentences on what surprised you about working through
+   Git, GitHub CLI, and an agent-assisted workflow.
 
 ## Evaluation (pass/fail, 20 pts)
-- 10 — Working coding agent, demonstrated with a screenshot.
-- 5 — Repo set up correctly with the agent-generated program committed and pushed.
-- 5 — `writeup.md` complete (agent name/version, prompts, corrections, reflection).
+- 5 — GitHub CLI installed and authenticated.
+- 5 — Branch, commit, push, and PR created correctly.
+- 5 — Improvement is thoughtful, scoped, and improves assignment clarity.
+- 5 — PR description/deliverable explains what changed and why.
 
 ## Notes
 - Tool links and student-verification flows change often; if a link or step has moved,
