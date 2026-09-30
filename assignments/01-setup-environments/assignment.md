@@ -28,15 +28,21 @@ free Gemini student account** (steps below).
    git config --global user.email "you@example.com"
    ```
 2. **GitHub account** — sign up (use your student email) and add an SSH or HTTPS
-   credential so you can push. Students: apply for the
-   [GitHub Student Developer Pack](https://education.github.com/pack).
+   credential so you can push. 
+   - **Resource:** [Generating a new SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+   - **Resource:** [Creating a Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+   
+   > **Common Mistake:** If you choose HTTPS, you must use a Personal Access Token (PAT) as your password when pushing from the terminal. GitHub no longer accepts standard account passwords for terminal authentication.
+
+   Students: apply for the [GitHub Student Developer Pack](https://education.github.com/pack).
 3. **A terminal + editor** — VS Code is recommended (Antigravity is a VS Code–based
    editor, so this transfers directly).
+```markdown
 4. **A language runtime** for later weeks — install **Python 3.12** (Miniconda/Anaconda
    or `uv` are both fine). Verify:
    ```bash
    python --version
-   ```
+   # Note for Linux/macOS users: You may need to run python3 --version instead
 
 ## Part 2 — Get a coding agent
 
