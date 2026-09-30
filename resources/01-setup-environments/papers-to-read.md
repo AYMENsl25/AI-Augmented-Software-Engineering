@@ -1,10 +1,8 @@
 # Papers to Read — The AI-Native Software Engineer
 
-These readings frame the first lecture's central question: **what changes when AI becomes part of a software engineer's everyday workflow?** Read the mandatory paper before class. The optional paper is a forward-looking companion for students who want to explore the "AI-native" idea in more depth.
+These readings frame the first lecture's central question: **what changes when AI becomes part of a software engineer's everyday workflow?** The Copilot study is a controlled experiment on developer speed. The SE 3.0 paper is a forward-looking companion for students who want to explore the "AI-native" idea in more depth.
 
-## Mandatory
-
-### The Impact of AI on Developer Productivity: Evidence from GitHub Copilot
+## The Impact of AI on Developer Productivity: Evidence from GitHub Copilot
 
 - **Authors:** Sida Peng, Eirini Kalliamvakou, Peter Cihon, and Mert Demirer (2023)
 - **Paper:** [arXiv:2302.06590](https://arxiv.org/abs/2302.06590) · [PDF](https://arxiv.org/pdf/2302.06590)
@@ -34,13 +32,11 @@ Come prepared to answer:
 
 ---
 
-## Optional
-
-### Towards AI-Native Software Engineering (SE 3.0): A Vision and a Challenge Roadmap
+## Towards AI-Native Software Engineering (SE 3.0): A Vision and a Challenge Roadmap
 
 - **Authors:** Ahmed E. Hassan et al. (2024)
 - **Paper:** [arXiv:2410.06107](https://arxiv.org/abs/2410.06107) · [PDF](https://arxiv.org/pdf/2410.06107)
-- **Why read it:** This vision paper proposes *Software Engineering 3.0*—intent-centric, conversation-oriented development in which AI moves from a task-level copilot toward a teammate. It is useful for challenging and extending the empirical perspective of the mandatory paper.
+- **Why read it:** This vision paper proposes *Software Engineering 3.0*—intent-centric, conversation-oriented development in which AI moves from a task-level copilot toward a teammate. It is useful for challenging and extending the empirical perspective of the Copilot study.
 
 ### How to read it
 
@@ -55,7 +51,7 @@ Add at least three claims from the paper. Mark each as one of: **current capabil
 ### What to take away
 
 - “AI-native” is not merely using a code-completion tool; it is a proposed redesign of how people express intent, collaborate, and validate software.
-- Vision papers offer valuable language and possible futures, but they are not causal evidence. Evaluate their assumptions against empirical studies such as the mandatory reading.
+- Vision papers offer valuable language and possible futures, but they are not causal evidence. Evaluate their assumptions against empirical studies such as the Copilot experiment.
 - The engineering role shifts toward specifying intent, supplying context, evaluating outputs, managing risk, and retaining accountability for outcomes.
 
 ---

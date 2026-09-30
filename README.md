@@ -1,6 +1,6 @@
 # AI-Augmented Software Engineering
 
-Course materials for the **AI-Augmented Software Engineering** lecture series at **Istinye University**.
+Course materials for the **AI-Augmented Software Engineering** lecture series.
 
 This repository collects lecture notes, slides, code examples, assignments, and resources exploring how modern AI tools change the way software is designed, built, tested, and maintained.
 
@@ -41,4 +41,4 @@ Course materials are shared for educational use. See [LICENSE](LICENSE) if prese
 
 ---
 
-_Istinye University · AI-Augmented Software Engineering_
+_AI-Augmented Software Engineering_
