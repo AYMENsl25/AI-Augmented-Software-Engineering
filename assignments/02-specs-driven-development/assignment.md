@@ -19,7 +19,7 @@ To keep this to ~3 hours, the feature is **pre-scoped** for you (below).
 
 ## Prerequisites
 - Python **3.11+** and [**uv**](https://github.github.io/spec-kit/install/uv.html).
-- The coding agent you set up in Week 0 (Antigravity by default).
+- The coding agent you set up in Week 1 (Antigravity by default).
 
 ## Setup
 Replace `copilot` with your agent's

@@ -1,4 +1,4 @@
-# Lecture 0 — Setup Environments
+# Lecture 1 — Setup Environments
 
 ## Topics
 - The Vibe-Coding Trap

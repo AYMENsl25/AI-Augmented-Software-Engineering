@@ -9,7 +9,7 @@ open PRs, run an **AI reviewer**, and compare its review to your own.
 
 A working starter app is in [`starter/`](starter/) — you extend it, you don't build it.
 
-> **IDE-agnostic.** Implement with your Week 0 agent (Antigravity by default). For the
+> **IDE-agnostic.** Implement with your Week 1 agent (Antigravity by default). For the
 > AI review, use any AI PR reviewer — **Graphite Diamond** (default), CodeRabbit, or
 > Copilot review. Name the one you used.
 

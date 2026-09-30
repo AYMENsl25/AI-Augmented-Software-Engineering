@@ -1,4 +1,4 @@
-# Week 0 — Setup Environments
+# Week 1 — Setup Environments
 
 **Estimated time: ~2–3 hours.**
 

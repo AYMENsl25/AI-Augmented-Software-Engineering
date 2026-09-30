@@ -10,7 +10,7 @@ AI-augmented software engineering is the practice of using AI systems — code a
 
 ## Lectures
 
-0. [Setup Environments](lectures/00-setup-environments/) — install Git, GitHub, Python, and a coding agent before the rest of the course.
+1. [Setup Environments](lectures/01-setup-environments/) — install Git, GitHub, Python, and a coding agent before the rest of the course.
 2. [Specs-Driven Development](lectures/02-specs-driven-development/) — the agentic SDLC, when SDD fits, Plan Mode, SDD maturity levels, good specs, and SDD frameworks.
 3. [Anatomy of Coding Agents](lectures/03-anatomy-of-coding-agents/) — how LLMs work, the model landscape, why LLMs are good at coding, and coding agents under the hood.
 4. [Advanced Context Management](lectures/04-advanced-context-management/) — a taxonomy of context, context assembly and discovery, the agent runtime pipeline, session management, and MCP fundamentals.

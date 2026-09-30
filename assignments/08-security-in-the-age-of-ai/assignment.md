@@ -10,7 +10,7 @@ one prompt injection.
 
 The vulnerable app is provided in [`starter/`](starter/) — you don't build it.
 
-> **IDE-agnostic.** Use your Week 0 agent (Antigravity by default) for remediation.
+> **IDE-agnostic.** Use your Week 1 agent (Antigravity by default) for remediation.
 > Semgrep is the required scanner.
 
 ## Learning goals

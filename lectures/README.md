@@ -2,7 +2,7 @@
 
 One folder per lecture, each with its own README describing that session's topics.
 
-0. [Setup Environments](00-setup-environments/)
+1. [Setup Environments](01-setup-environments/)
 2. [Specs-Driven Development](02-specs-driven-development/)
 3. [Anatomy of Coding Agents](03-anatomy-of-coding-agents/)
 4. [Advanced Context Management](04-advanced-context-management/)
