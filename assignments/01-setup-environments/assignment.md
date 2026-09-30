@@ -13,7 +13,8 @@ free Gemini student account** (steps below).
 
 ## Learning goals
 - Have a functioning coding agent you can invoke from your editor and/or terminal.
-- Understand the difference between chat, inline completion, and agentic modes.
+- Keep a local repo and the GitHub remote in sync yourself: Git does not sync them automatically, so you push your commits and pull before you build on someone else's work.
+- Do feature work on a branch and open a pull request, so unfinished code stays off main and the team can review it before it merges.
 - Establish the Git + GitHub workflow we'll use all semester.
 - Use GitHub CLI to open a pull request that improves shared course materials.
 
