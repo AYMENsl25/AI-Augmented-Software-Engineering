@@ -1,5 +1,7 @@
 # Lecture 2 — Specs-Driven Development
 
+Slides: [Week 2 — Spec-Driven Development](./Week%202%20%E2%80%94%20Spec-Driven%20Development.pdf)
+
 ## Topics
 - Agentic software development life cycle
 - Why do we need SDD?
