@@ -132,16 +132,16 @@ Create a feature branch:
 git checkout -b improve-assignment-clarity
 ```
 
-Make your edit to the assignment file(s), then commit with a clear message:
+Make your edit to the assignment file(s), then stage only the files you changed and
+commit with a short message describing your improvement. For example, if you
+clarified this assignment:
 
 ```bash
-git add assignments/
-git commit -m "Clarify assignment requirements for better student understanding
-
-- Rewrote confusing section about expected output
-- Added example showing what not to do
-- Fixed typo in code snippet"
+git add assignments/01-setup-environments/assignment.md
+git commit -m "Clarify Assignment 1 commit instructions"
 ```
+
+Replace the file path and commit message with the ones for your own change.
 
 Push your branch and open a PR:
 
