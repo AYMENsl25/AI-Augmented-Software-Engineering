@@ -4,14 +4,14 @@
 **Gemini CLI version (`gemini --version`):** TODO
 **OS / shell:** TODO (e.g. macOS + zsh, Windows + Git Bash)
 **Model(s) seen in trace:** TODO
-**Commits:** baseline run `TODO-sha` · ablation run 1 `TODO-sha` · ablation run 2 `TODO-sha`
+**Session commit:** `TODO-sha`
 
 > Evidence tags: `[OBSERVED]` = cite a timeline line, call number, or diff hunk.
 > `[INFERRED]` = say what you're reasoning from.
 
 ---
 
-## Part I — Baseline session
+## Part I — Session
 
 **Narrative (one paragraph):** TODO
 
@@ -133,25 +133,3 @@ TODO — any edits to existing tests, quoted diff, allowed by TASK.md?
 
 ### 6. Models
 TODO
-
----
-
-## Part V — Prompt ablation
-
-**Section changed:** TODO
-**Exact change (before → after):** TODO
-**Hypothesis (written before running):** TODO
-**Metric that will show it:** TODO
-
-| Metric | Baseline | Ablation run 1 | Ablation run 2 |
-|---|---|---|---|
-| Model calls | TODO | TODO | TODO |
-| Tool calls (by type) | TODO | TODO | TODO |
-| Failed tool calls | TODO | TODO | TODO |
-| Total input tokens | TODO | TODO | TODO |
-| Ran tests? | TODO | TODO | TODO |
-| Final `pytest` | TODO | TODO | TODO |
-| Lines changed (diff) | TODO | TODO | TODO |
-
-**Was the hypothesis right?** TODO
-**Variance — is the effect bigger than the noise? What would make you confident?** TODO
