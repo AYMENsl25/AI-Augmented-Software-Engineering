@@ -215,14 +215,25 @@ Use `prompts/system.md`, and `submission/baseline_system.md` if it was captured.
    during the session). What, if anything, was added at runtime?
 
 ## Part III — Tool design (20 pts)
+The tool source is in **Gemini CLI's GitHub repo**, not this course repo. Use the
+`v0.64.0` tag so the code matches the version you ran:
+- Schemas and descriptions the model sees:
+  [`packages/core/src/tools/definitions/`](https://github.com/google-gemini/gemini-cli/tree/v0.64.0/packages/core/src/tools/definitions)
+- Per-model description sets:
+  [`definitions/model-family-sets/`](https://github.com/google-gemini/gemini-cli/tree/v0.64.0/packages/core/src/tools/definitions/model-family-sets)
+- Tool implementations:
+  [`packages/core/src/tools/`](https://github.com/google-gemini/gemini-cli/tree/v0.64.0/packages/core/src/tools) (e.g. `edit.ts`, `shell.ts`)
+
+The copy that `npm` installed is a minified bundle and isn't readable. To browse locally
+instead, run `git clone --depth 1 --branch v0.64.0 https://github.com/google-gemini/gemini-cli.git`
+somewhere **outside** your course repo.
+
 1. **Inventory.** Run `/tools` in the CLI. List every built-in tool and group them as
    file, search, shell, web, memory, or other. Which ones did your session actually use, and
    how many times each?
 2. **Compare two tools in depth.** Pick two that work very differently. Suggested pair: the
-   file-edit tool (`replace`) and `run_shell_command`. In the source at the tag for your
-   version, the schemas and descriptions the model sees are in
-   `packages/core/src/tools/definitions/`, and the implementations are in
-   `packages/core/src/tools/` (e.g. `edit.ts`, `shell.ts`). For each tool:
+   file-edit tool (`replace`) and `run_shell_command`. Use the source links above. For
+   each tool:
    - Reproduce its **parameter schema** and justify every parameter.
    - Quote one line of its **description** that exists to stop a specific model mistake,
      and name that mistake.
