@@ -1,0 +1,321 @@
+# Week 3 — Inside a Coding Agent: Dissecting Gemini CLI
+
+**Estimated time: ~3 hours.**
+
+## Overview
+You've been using coding agents as a black box. This week you open one up.
+[**Gemini CLI**](https://github.com/google-gemini/gemini-cli) is a production coding agent
+whose source is **open (Apache 2.0)**. That means you can read its real system prompt,
+read its tool code, record every model call it makes, and even **swap in your own system
+prompt** to see what changes.
+
+You'll run Gemini CLI on a small, deliberately buggy repo, capture a full telemetry trace,
+and take it apart: the system prompt, the tools, the agent loop, and how context grows.
+Then you'll run one controlled experiment: edit the system prompt, rerun the same task, and
+measure the difference.
+
+You build almost nothing. The work is **observing carefully and backing every claim with
+evidence**.
+
+## Learning goals
+- See the **agent loop** concretely: one user message → many model calls and tool calls.
+- Read a production **system prompt** and explain what each part is for.
+- Understand **tool design**: schemas, descriptions, and deliberate limits.
+- Watch **context grow** across a session, measured in tokens.
+- Show experimentally that the **prompt shapes the agent's behavior**.
+
+---
+
+## What's in this folder
+```
+gemini-cli-dissection/
+├── assignment.md        # this file
+├── writeup.md           # template you copy into work/ and fill in
+├── tools/summarize_log.py  # turns a raw telemetry log into a timeline + token table
+├── starter/             # the repo the agent works on — don't fix it yourself!
+    ├── TASK.md          # what you'll ask the agent to do
+    ├── GEMINI.md        # project context file the agent loads
+    ├── .gemini/settings.json  # turns on local telemetry
+    ├── shopcart/        # small Python library (has bugs on purpose)
+│   └── tests/
+└── work/                # YOU create this; everything you submit goes here
+```
+
+> **Don't read the `shopcart/` code closely or fix anything before Part I.** The point is
+> to watch the agent find and fix the problems. You'll analyze the code afterwards.
+
+---
+
+## Setup (~25 min)
+
+### 1. Fork the course repo and make a branch
+You'll submit this lab as a **pull request** to the course repo. It won't be merged; the
+PR *is* your submission, and it's practice for the PR workflow you'll use for the rest of
+the course.
+
+1. On GitHub, **fork** https://github.com/scottyUX/AI-Augmented-Software-Engineering
+   to your account.
+2. Clone your fork and create a branch:
+   ```bash
+   git clone https://github.com/<your-username>/AI-Augmented-Software-Engineering.git
+   cd AI-Augmented-Software-Engineering
+   git checkout -b week3-<your-username>
+   cd assignments/03-anatomy-of-coding-agents/gemini-cli-dissection
+   ```
+
+> Forks of a public repo are public, and so is your PR. To keep your personal email off
+> your commits, turn on GitHub's **"Keep my email addresses private"** setting and use
+> your `@users.noreply.github.com` address
+> (`git config user.email <id>+<username>@users.noreply.github.com`).
+
+> **Windows users:** run every command in this lab in **Git Bash** (it comes with Git for
+> Windows, which you installed in Week 1), opened as a tab in **VS Code's terminal** or **Windows
+> Terminal**. Don't use the standalone Git Bash window: Gemini CLI's interactive screen
+> doesn't work well there. The commands below are bash, and most of them **won't work in
+> PowerShell or cmd** as written. If you must use PowerShell, see
+> [PowerShell equivalents](#appendix-powershell-equivalents) at the end of this file.
+> If Git Bash says `python: command not found` and your Python came from Miniconda, run
+> `conda init bash` once and reopen the terminal.
+
+### 2. Install Gemini CLI (pinned version)
+Gemini CLI needs **Node.js 20 or newer** (`node --version`). If you don't have it,
+install the LTS version: `brew install node` (macOS), `winget install OpenJS.NodeJS.LTS`
+(Windows, then reopen your terminal), or download it from https://nodejs.org.
+```bash
+npm install -g @google/gemini-cli@0.64.0
+gemini --version   # record this in your writeup
+```
+Use the **exact pinned version**. The system prompt and tools change between releases, and
+your answers have to match the version you analyzed.
+
+### 3. Sign in with your Google AI Pro account
+Run `gemini` and pick **Sign in with Google**. Use the Google account that has your free
+**Google AI Pro** student plan. The free sign-in tier is enough for this lab, but Pro gives
+you more headroom. Type `/quit` once you're signed in.
+
+> If sign-in with a **university Workspace account** fails with an error about a Google
+> Cloud project, use the personal Google account your AI Pro plan is on.
+
+### 4. Make your working copies
+Never run the agent in `starter/` itself. Each run gets its own clean copy under `work/`.
+From the `gemini-cli-dissection/` folder:
+```bash
+mkdir -p work/prompts work/submission
+for d in run-baseline run-ablation-1 run-ablation-2; do cp -r starter work/$d; done
+cp writeup.md work/writeup.md
+python -m pip install pytest
+git add work && git commit -m "Week 3: add working copies of starter"
+```
+Check that the tests fail before the agent touches anything:
+`(cd work/run-baseline && python -m pytest -q)`.
+
+**Commit after every step below.** Each agent run then shows up as its own commit in your
+PR, so the reviewer can see exactly what the agent changed. Your writeup can cite those
+commits.
+
+### 5. Export the real system prompt
+```bash
+cd work/run-baseline
+GEMINI_WRITE_SYSTEM_MD=../prompts/system.md gemini
+```
+When Gemini CLI asks whether to **trust this folder**, say yes. If the folder isn't
+trusted, the CLI ignores `.gemini/settings.json` and nothing gets logged. Type `/quit` as
+soon as it starts. `work/prompts/system.md` now holds the built-in system prompt for your
+CLI version. Clear the log this short session wrote, then commit:
+```bash
+rm -f .gemini/telemetry.log
+git add ../prompts && git commit -m "Week 3: export Gemini CLI system prompt"
+```
+
+---
+
+## Part I — Capture a baseline session (10 pts)
+In `work/run-baseline/`, start `gemini` and send **exactly** this prompt:
+
+```text
+Read TASK.md and complete it. Before changing any code, write out your plan.
+```
+
+Rules, so everyone's sessions can be compared:
+- **Approve** tool calls when asked. Don't use `--yolo`.
+- **Don't help.** Type nothing else unless the agent is truly stuck for 3+ turns. If you
+  step in, record exactly what you typed and when; it's part of your data.
+- When the agent says it's done, run `python -m pytest -q` yourself, then `/quit`.
+
+Save the results and commit the agent's changes (still in `work/run-baseline/`):
+```bash
+python ../../tools/summarize_log.py .gemini/telemetry.log --out ../submission/baseline_timeline.txt --csv ../submission/baseline_calls.csv --system ../submission/baseline_system.md
+git add . ../submission && git commit -m "Week 3: baseline run (Gemini CLI's changes)"
+```
+
+> The raw `telemetry.log` contains your account email and full prompt payloads. It's
+> already gitignored; **never force-add it.** Commit only the generated files above, and
+> quote short excerpts in your writeup.
+
+In `writeup.md`: your CLI version, a one-paragraph narrative of the session, the counts
+(user prompts, model calls, tool calls, failed tool calls), whether the final tests passed,
+and any time you stepped in.
+
+## Part II — System prompt annotation (20 pts)
+Use `prompts/system.md`, and `submission/baseline_system.md` if it was captured.
+
+1. **Outline.** Split the prompt into its sections and give each a one-line label.
+2. **Annotate at least 6 sections.** For each one: *what behavior it produces* and *what
+   failure it prevents*. Quote the specific line or lines. You must include:
+   - one section about **tone and verbosity**,
+   - one about **when not to act, or when to ask or confirm** (safety and destructive actions),
+   - one about **workflow** (understand → plan → implement → verify),
+   - one about **tool usage**.
+3. **Context injection.** Is `GEMINI.md`'s content in the exported `system.md`? If not,
+   where and how does it reach the model? Show evidence from the trace, or point to the
+   source file and line in the Gemini CLI repo. (You'll go deep on context files in Week 5.
+   Here, just find where the content enters.)
+4. **Static vs dynamic.** Compare `system.md` (exported) with `baseline_system.md` (sent
+   during the session). What, if anything, was added at runtime?
+
+## Part III — Tool design (20 pts)
+1. **Inventory.** Run `/tools` in the CLI. List every built-in tool and group them as
+   file, search, shell, web, memory, or other. Which ones did your session actually use, and
+   how many times each?
+2. **Compare two tools in depth.** Pick two that work very differently. Suggested pair: the
+   file-edit tool (`replace`) and `run_shell_command`. In the source at the tag for your
+   version, the schemas and descriptions the model sees are in
+   `packages/core/src/tools/definitions/`, and the implementations are in
+   `packages/core/src/tools/` (e.g. `edit.ts`, `shell.ts`). For each tool:
+   - Reproduce its **parameter schema** and justify every parameter.
+   - Quote one line of its **description** that exists to stop a specific model mistake,
+     and name that mistake.
+   - State something the tool deliberately **does not** do, and why.
+3. **Design question.** Why does the edit tool take an exact **old string / new string**
+   instead of line numbers or a whole new file? Give two reasons, and point to a moment in
+   your trace where it mattered (or explain why it never came up).
+4. **Per-model tool descriptions.** `definitions/model-family-sets/` has more than one
+   version of the tool descriptions (e.g. `gemini-3.ts` vs `default-legacy.ts`). Diff one
+   tool across the two. What changed, and why would an agent describe the same tool
+   differently to different models?
+
+## Part IV — Behavioral analysis (20 pts)
+Answer from your trace. **Tag every claim `[OBSERVED]`** (cite a line in
+`baseline_timeline.txt`, a call number, or the baseline commit's diff) **or
+`[INFERRED]`** (say what you're reasoning from).
+
+1. **The loop.** Draw the actual loop for your session (e.g. `call#1 → read_file → call#2 →
+   …`). What ended it: the agent deciding it was done, a limit, or you?
+2. **Context growth.** Chart `input_token_count` per call from `baseline_calls.csv`
+   (any tool; include the image or a table). Why does it grow? What does
+   `cached_content_token_count` tell you, and why does caching matter for cost and speed?
+3. **Planning.** How did the agent plan: in plain text, with the `write_todos` tool, or
+   by entering plan mode? Did the plan match what it actually did? Point to where it
+   departed from the plan.
+4. **Error recovery.** Find the first failure (a failing test run, a failed tool call, or a
+   wrong fix). Quote it, then describe exactly what the agent did next. Was the recovery
+   good?
+5. **The tests.** Did the agent edit any existing test? Was each edit allowed by
+   `TASK.md`? Quote the diff.
+6. **Models.** Does the `model` field change between calls? If so, which kinds of calls go
+   to which model, and why would a CLI route this way? (Connects to the lecture's model
+   landscape.)
+
+## Part V — Prompt ablation experiment (20 pts)
+Now change the agent's "personality" and measure the effect.
+
+1. **Hypothesis.** Pick **one** section of `system.md` to delete or rewrite. Before
+   running anything, write down what you expect to change and which metric will show it.
+   Ideas:
+   - Delete the instructions about verifying work and running tests.
+   - Delete the guidance on following project conventions.
+   - Replace the workflow section with "Act immediately. Do not plan."
+   - Remove the conciseness and tone rules.
+
+   Commit the hypothesis in your writeup **before** running, so the PR history shows you
+   predicted first.
+2. **Run.** From `work/`:
+   ```bash
+   cp prompts/system.md prompts/system-ablated.md
+   # edit system-ablated.md: make exactly ONE change
+   git add prompts writeup.md && git commit -m "Week 3: ablated system prompt + hypothesis"
+   cd run-ablation-1
+   GEMINI_SYSTEM_MD=../prompts/system-ablated.md gemini
+   ```
+   You should see the `|⌐■_■|` indicator, which confirms the custom prompt is active. Send
+   the **same prompt** as Part I and follow the same rules. Then generate
+   `ablation1_timeline.txt` and `ablation1_calls.csv` the same way as in Part I, and commit
+   (`"Week 3: ablation run 1"`).
+3. **Compare.** Make a side-by-side table: model calls, tool calls (by type), failed tool
+   calls, total input tokens, whether the agent ran tests, final `pytest` result, and lines
+   changed. Was your hypothesis right?
+4. **Variance.** LLM runs are noisy. Repeat step 2 in `run-ablation-2/` with the same
+   ablated prompt (files `ablation2_*`, commit `"Week 3: ablation run 2"`). Is the
+   difference you saw bigger than the run-to-run variation? What would it take to be
+   confident?
+
+---
+
+## Deliverables: open a pull request
+Everything you submit lives in `gemini-cli-dissection/work/`:
+1. `writeup.md`, with every `TODO` filled in.
+2. `prompts/system.md` and `prompts/system-ablated.md`.
+3. `submission/`: `baseline_timeline.txt`, `baseline_calls.csv`, `baseline_system.md`
+   (if captured), and the `ablation1_*` / `ablation2_*` files.
+4. `run-baseline/`, `run-ablation-1/`, `run-ablation-2/` with the agent's changes
+   committed. Each run is a separate commit.
+5. Your context-growth chart (image file or table in the writeup).
+
+**Before you push**, check for leaks and redact any hits like this: `[REDACTED: email]`.
+```bash
+grep -rniE "@gmail|@ucsc|email|api[_-]?key" work/submission work/prompts
+git status --ignored work | grep telemetry   # must show as ignored, never staged
+```
+
+**Open the PR:**
+1. `git push -u origin week3-<your-username>`
+2. On GitHub, open a pull request from your fork's branch **into
+   `scottyUX/AI-Augmented-Software-Engineering:main`**.
+3. **Title:** `Week 3: <Your Name>`
+4. **Description:** your one-line ablation hypothesis and result, the final `pytest`
+   result for each run, and a link to `work/writeup.md` on your branch.
+5. **Submit the PR link** on Canvas. The PR won't be merged; it's your submission.
+   Leave it open. You can keep pushing fixes until the deadline.
+
+**Only touch `work/`.** Don't edit `starter/`, `tools/`, or any other file in the
+course repo. The "Files changed" tab of your PR should show only `work/`.
+
+## Evaluation (100 pts)
+- 10 — Pull request: opened against the course repo; only `work/` changed; one commit per
+  step with clear messages; descriptive title and body; no raw logs or leaked identifiers.
+- 10 — Part I: clean baseline capture, correct counts, narrative.
+- 20 — Part II: accurate outline; ≥6 well-evidenced annotations; context-injection answer.
+- 20 — Part III: complete inventory; two tool analyses grounded in source; design question.
+- 20 — Part IV: every answer evidenced and tagged; context-growth chart.
+- 20 — Part V: hypothesis committed before the run; single controlled change; comparison
+  table; variance discussion.
+
+Claims without evidence get no credit, even if they're true.
+
+## Appendix: PowerShell equivalents
+Use these only if you can't use Git Bash. Run them from the same folders as the bash
+versions.
+
+| Step | PowerShell |
+|---|---|
+| Make working copies (Setup 4) | `New-Item -ItemType Directory -Force work\prompts, work\submission`<br>`foreach ($d in "run-baseline","run-ablation-1","run-ablation-2") { Copy-Item -Recurse starter "work\$d" }`<br>`Copy-Item writeup.md work\writeup.md` |
+| Export system prompt (Setup 5) | `$env:GEMINI_WRITE_SYSTEM_MD = "..\prompts\system.md"; gemini; Remove-Item Env:GEMINI_WRITE_SYSTEM_MD` |
+| Delete the log | `Remove-Item -Force .gemini\telemetry.log` |
+| Ablation run (Part V) | `$env:GEMINI_SYSTEM_MD = "..\prompts\system-ablated.md"; gemini; Remove-Item Env:GEMINI_SYSTEM_MD` |
+| Leak check (Deliverables) | `Select-String -Path work\submission\*, work\prompts\* -Pattern "@gmail","@ucsc","email","api_key"`<br>`git status --ignored work \| Select-String telemetry` |
+
+- **Always run the `Remove-Item Env:...` part.** A `$env:` variable stays set for the
+  rest of the PowerShell session. A leftover `GEMINI_SYSTEM_MD` would quietly run your
+  *baseline* with the ablated prompt.
+- If `gemini` fails with *"running scripts is disabled on this system"*, run
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, or run `gemini.cmd`
+  instead.
+- In Windows PowerShell 5.1, `&&` doesn't exist. Run chained commands one at a time.
+
+## References
+- Gemini CLI source: https://github.com/google-gemini/gemini-cli
+- System prompt override (`GEMINI_SYSTEM_MD`, `GEMINI_WRITE_SYSTEM_MD`):
+  https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/system-prompt.md
+- Telemetry: https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/telemetry.md
+- Built-in tools: https://github.com/google-gemini/gemini-cli/tree/main/docs/tools
+- Inspired by Stanford CS146S, Week 1 ("Trace Dissection of a Claude Code Session").

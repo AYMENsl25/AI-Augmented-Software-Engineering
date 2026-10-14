@@ -1,0 +1,9 @@
+{
+  "telemetry": {
+    "enabled": true,
+    "target": "local",
+    "outfile": ".gemini/telemetry.log",
+    "logPrompts": true,
+    "traces": true
+  }
+}
