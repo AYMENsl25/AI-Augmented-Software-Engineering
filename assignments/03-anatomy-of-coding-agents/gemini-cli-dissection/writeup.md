@@ -66,9 +66,6 @@
 ### Context injection (`GEMINI.md`)
 TODO — where it enters, with evidence.
 
-### Static vs dynamic prompt
-TODO — what differs between `system.md` and what was sent at runtime.
-
 ---
 
 ## Part III — Tool design

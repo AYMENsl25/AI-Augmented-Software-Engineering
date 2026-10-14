@@ -109,11 +109,25 @@ gemini
   `gemini`. You can also add the line to `~/.zshrc` or `~/.bashrc`, which live in your home
   folder and are **not** in the repo.
 
-**Free-tier limits:** about **250 requests per day**, Flash models only. This lab uses
-roughly 20–50 requests in total, so it fits easily. If you get a `429` / quota error, stop
-and continue the next day. On the free tier, Google may use your prompts to improve its
-products. That's fine for this starter repo, but don't paste anything private into the
-agent.
+**Use `gemini-3.5-flash-lite` for this lab.** Start Gemini CLI with
+`gemini -m gemini-3.5-flash-lite` every time (the commands below already do). The free tier
+has tight limits, set **per model**:
+
+| Model | Free-tier limit (approx.) |
+|---|---|
+| `gemini-3.8-flash` (the CLI's default) | 20 requests **per day** |
+| `gemini-3-flash-preview` | 20 requests per day, 5 per minute |
+| `gemini-3.5-flash-lite` | 250,000 input tokens per minute; enough for this lab |
+
+One agent session uses about **20–25 requests**, so the default model can run out halfway
+through. Gemini 2.5 models don't work with new API keys.
+
+- **`429` / "exhausted your daily quota":** switch models. Type `/model` inside Gemini CLI,
+  or restart with `-m <model>`. A short "retrying after 30s" message is normal; wait for it.
+- **`503` / "high demand":** temporary. Gemini CLI retries automatically.
+- **Check your usage:** https://ai.dev/rate-limit. Limits reset daily (midnight Pacific).
+- On the free tier, Google may use your prompts to improve its products. That's fine for
+  this starter repo, but don't paste anything private into the agent.
 
 > **Never commit your API key.** Don't put it in any file inside the repo, including
 > `TASK.md`, `GEMINI.md`, notes, or a `.env` in your working copies. If a key ever gets
@@ -153,24 +167,24 @@ commit.
 ### 6. Export the real system prompt
 ```bash
 cd work/run
-GEMINI_WRITE_SYSTEM_MD=../prompts/system.md gemini
+GEMINI_WRITE_SYSTEM_MD=../prompts/system.md gemini -m gemini-3.5-flash-lite
 ```
 When Gemini CLI asks whether to **trust this folder**, say yes. If the folder isn't
 trusted, the CLI ignores `.gemini/settings.json` and nothing gets logged. Type `/quit` as
 soon as it starts. `work/prompts/system.md` now holds the built-in system prompt for your
 CLI version. Clear the log this short session wrote, then commit:
 ```bash
-rm -f .gemini/telemetry.log
+rm -f ../telemetry.log
 git add ../prompts && git commit -m "Week 3: export Gemini CLI system prompt"
 ```
 
 ---
 
 ## Part I — Capture a session (15 pts)
-In `work/run/`, start `gemini` and send **exactly** this prompt:
+In `work/run/`, start `gemini -m gemini-3.5-flash-lite` and send **exactly** this prompt:
 
 ```text
-Read TASK.md and complete it. Before changing any code, write out your plan.
+Read TASK.md and complete all of it. First write out your plan, then carry it out without waiting for my confirmation.
 ```
 
 Rules, so everyone's sessions are comparable:
@@ -181,11 +195,12 @@ Rules, so everyone's sessions are comparable:
 
 Save the results and commit the agent's changes (still in `work/run/`):
 ```bash
-python ../../tools/summarize_log.py .gemini/telemetry.log --out ../submission/session_timeline.txt --csv ../submission/session_calls.csv --system ../submission/session_system.md
+python ../../tools/summarize_log.py ../telemetry.log --out ../submission/session_timeline.txt --csv ../submission/session_calls.csv --system ../submission/session_system.md
 git add . ../submission && git commit -m "Week 3: Gemini CLI session (agent's changes)"
 ```
 
-> The raw `telemetry.log` contains your account email and full prompt payloads. It's
+> The raw `work/telemetry.log` contains your account email and full prompt payloads. It's
+> written outside `run/` on purpose, so the agent can't search its own trace, and it's
 > already gitignored; **never force-add it.** Commit only the generated files above, and
 > quote short excerpts in your writeup.
 
@@ -207,8 +222,6 @@ Use `prompts/system.md`, and `submission/session_system.md` if it was captured.
    where and how does it reach the model? Show evidence from the trace, or point to the
    source file and line in the Gemini CLI repo. (You'll go deep on context files in Week 5.
    Here, just find where the content enters.)
-4. **Static vs dynamic.** Compare `system.md` (exported) with `session_system.md` (sent
-   during the session). What, if anything, was added at runtime?
 
 ## Part III — Tool design (25 pts)
 The tool source is in **Gemini CLI's GitHub repo**, not this course repo. Use the
@@ -225,11 +238,21 @@ instead, run `git clone --depth 1 --branch v0.64.0 https://github.com/google-gem
 somewhere **outside** your course repo.
 
 1. **Inventory.** Run `/tools` in the CLI. List every built-in tool and group them as
-   file, search, shell, web, memory, or other. Which ones did your session actually use, and
-   how many times each?
+   **file** (read/write/edit), **search** (find files or text), **shell** (run commands,
+   background processes), **web**, **planning and narration** (e.g. `update_topic`,
+   `enter_plan_mode`), **delegation** (sub-agents, skills), or other. Which ones did your
+   session actually use, and how many times each?
 2. **Compare two tools in depth.** Pick two that work very differently. Suggested pair: the
-   file-edit tool (`replace`) and `run_shell_command`. Use the source links above. For
-   each tool:
+   file-edit tool (`replace`) and `run_shell_command`. Where to look for those two:
+
+   | | `replace` | `run_shell_command` |
+   |---|---|---|
+   | Name and parameter names | [`base-declarations.ts` L64–69](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/definitions/base-declarations.ts#L64-L69) | [`base-declarations.ts` L56–58](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/definitions/base-declarations.ts#L56-L58) |
+   | Description + schema the model sees | [`gemini-3.ts` L356](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/definitions/model-family-sets/gemini-3.ts#L356) | [`dynamic-declaration-helpers.ts`](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/definitions/dynamic-declaration-helpers.ts) (`getShellToolDescription` L36, `getShellDeclaration` L85); differs on Windows vs Mac/Linux |
+   | Older-model version (for Q4) | [`default-legacy.ts` L349](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/definitions/model-family-sets/default-legacy.ts#L349) | [`default-legacy.ts` L338](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/definitions/model-family-sets/default-legacy.ts#L338) |
+   | What runs when it's called | [`edit.ts`](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/edit.ts) (`EditToolInvocation` L460, `validateToolParamValues` L1176) | [`shell.ts`](https://github.com/google-gemini/gemini-cli/blob/v0.64.0/packages/core/src/tools/shell.ts) (`ShellToolInvocation` L102, `validateToolParamValues` L1220) |
+
+   For each tool:
    - Reproduce its **parameter schema** and justify every parameter.
    - Quote one line of its **description** that exists to stop a specific model mistake,
      and name that mistake.
@@ -252,18 +275,22 @@ Answer from your trace. **Tag every claim `[OBSERVED]`** (cite a line in
 2. **Context growth.** Chart `input_token_count` per call from `session_calls.csv`
    (any tool; include the image or a table). Why does it grow? What does
    `cached_content_token_count` tell you, and why does caching matter for cost and speed?
-3. **Planning.** How did the agent plan: in plain text, with the `write_todos` tool, or
-   by entering plan mode? Did the plan match what it actually did? Point to where it
+3. **Planning.** How did the agent plan and track its progress: in plain text, with the
+   `update_topic` tool (which splits the work into named phases), with `write_todos`, or by
+   entering plan mode? Check the system prompt's "Topic Updates" section. Did the plan match what it actually did? Point to where it
    departed from the plan.
 4. **Error recovery.** Find the first failure (a failing test run, a failed tool call, or a
    wrong fix). Quote it, then describe exactly what the agent did next. Was the recovery
    good?
 5. **The tests.** Did the agent edit any existing test? Was each edit allowed by
    `TASK.md`? Quote the diff.
-6. **Models.** Which model or models appear in the `model` field? Does it change between
-   calls, for example a main model plus a lighter one for routing or summaries? Why would a
-   CLI use different models for different jobs, and what would you expect to change with a
-   paid key that unlocks Pro models? (Connects to the lecture's model landscape.)
+6. **Models.** You ran everything on `gemini-3.5-flash-lite`. Confirm it from the `model`
+   field. Then use the `thoughts` column (`thoughts_token_count` in `session_calls.csv`):
+   which calls had the most "thinking", and what was the agent deciding at those points?
+   Without `-m`, Gemini CLI's default setup uses **two** models: `gemini-3.5-flash-lite` to
+   route each request and `gemini-3.8-flash` to do the work. Why would a CLI split the job
+   this way, and what would you expect to change (speed, cost, quality) if the whole session
+   ran on a bigger model? (Connects to the lecture's model landscape.)
 
 ---
 
@@ -279,8 +306,11 @@ Everything you submit lives in `gemini-cli-dissection/work/`:
 **Before you push**, check for leaks and redact any hits like this: `[REDACTED: email]`.
 ```bash
 git grep -niE "AIza|@gmail|@ucsc|email|api[_-]?key" -- work   # searches only files git tracks
+git grep -nE "/Users/|/home/|C:\\\\Users\\\\" -- work      # your home-folder path and username
 git status --ignored work | grep telemetry   # must show as ignored, never staged
 ```
+The exported `system.md` lists your home-folder paths and every agent skill installed on
+your machine. Redact your username (e.g. `/Users/[REDACTED]/...`); the rest can stay.
 
 **Open the PR:**
 1. `git push -u origin week3-<your-username>`
@@ -316,8 +346,8 @@ versions.
 | Make working copy (Setup 4) | `New-Item -ItemType Directory -Force work\prompts, work\submission`<br>`Copy-Item -Recurse starter work\run`<br>`Copy-Item writeup.md work\writeup.md` |
 | Python environment (Setup 5) | `python -m venv .venv`<br>`.venv\Scripts\Activate.ps1`<br>`python -m pip install -r starter\requirements.txt` |
 | Export system prompt (Setup 6) | `$env:GEMINI_WRITE_SYSTEM_MD = "..\prompts\system.md"; gemini; Remove-Item Env:GEMINI_WRITE_SYSTEM_MD` |
-| Delete the log | `Remove-Item -Force .gemini\telemetry.log` |
-| Leak check (Deliverables) | `git grep -niE "AIza\|@gmail\|@ucsc\|email\|api[_-]?key" -- work`<br>`git status --ignored work` (`telemetry.log` must be listed as ignored) |
+| Delete the log | `Remove-Item -Force ..\telemetry.log` |
+| Leak check (Deliverables) | `git grep -niE "AIza\|@gmail\|@ucsc\|email\|api[_-]?key" -- work`<br>`git grep -nE "/Users/\|/home/\|C:\\Users" -- work`<br>`git status --ignored work` (`telemetry.log` must be listed as ignored) |
 
 - **Always run the `Remove-Item Env:...` part.** A `$env:` variable stays set for the
   rest of the PowerShell session. A leftover `GEMINI_WRITE_SYSTEM_MD` would rewrite

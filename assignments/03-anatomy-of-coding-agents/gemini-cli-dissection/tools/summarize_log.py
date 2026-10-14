@@ -9,6 +9,8 @@ Usage:
     python summarize_log.py path/to/telemetry.log --out timeline.txt  # same, to a file
     python summarize_log.py path/to/telemetry.log --csv out.csv  # per-API-call token table
     python summarize_log.py path/to/telemetry.log --system out.md  # system instructions sent
+    python summarize_log.py path/to/telemetry.log --context out.md  # first message the model got
+    python summarize_log.py path/to/telemetry.log --tools out.md    # tool schemas the model got
 """
 from __future__ import annotations
 
@@ -68,16 +70,67 @@ def find_attribute_dicts(obj):
             stack.extend(cur)
 
 
-def find_system_instructions(obj):
+def find_key(obj, key):
+    """Yield every value stored under `key` anywhere inside obj."""
     stack = [obj]
     while stack:
         cur = stack.pop()
         if isinstance(cur, dict):
-            if "gen_ai.system_instructions" in cur:
-                yield cur["gen_ai.system_instructions"]
+            if key in cur:
+                yield cur[key]
             stack.extend(cur.values())
         elif isinstance(cur, list):
             stack.extend(cur)
+
+
+def as_text(value) -> str:
+    """Turn a payload attribute (often JSON-encoded, sometimes twice) into plain text."""
+    for _ in range(3):
+        if isinstance(value, str) and value[:1] in '[{"':
+            try:
+                value = json.loads(value)
+                continue
+            except json.JSONDecodeError:
+                pass
+        break
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        if "parts" in value:
+            return as_text(value["parts"])
+        return as_text(value.get("content", value.get("text", "")))
+    if isinstance(value, list):
+        return "".join(as_text(v) for v in value)
+    return str(value)
+
+
+def tool_declarations(path: str) -> list[dict]:
+    """Every tool declaration (name, description, schema) sent to the model, first seen wins."""
+    tools: dict[str, dict] = {}
+    for obj in read_objects(path):
+        for raw in find_key(obj, "gen_ai.tool.definitions"):
+            try:
+                groups = json.loads(raw) if isinstance(raw, str) else raw
+            except json.JSONDecodeError:
+                continue
+            for group in groups if isinstance(groups, list) else [groups]:
+                for decl in (group or {}).get("functionDeclarations", []):
+                    tools.setdefault(decl.get("name"), decl)
+    return sorted(tools.values(), key=lambda d: d.get("name") or "")
+
+
+def first_user_message(path: str) -> str | None:
+    """Text of the first user-role message sent to the model (needs telemetry traces)."""
+    for obj in read_objects(path):
+        for raw in find_key(obj, "gen_ai.input.messages"):
+            try:
+                messages = json.loads(raw) if isinstance(raw, str) else raw
+            except json.JSONDecodeError:
+                continue
+            for m in messages if isinstance(messages, list) else []:
+                if isinstance(m, dict) and m.get("role") == "user":
+                    return as_text(m)
+    return None
 
 
 def load_events(path: str):
@@ -110,6 +163,8 @@ def main() -> int:
     ap.add_argument("--out", help="write the timeline + summary here (UTF-8) instead of stdout")
     ap.add_argument("--csv", help="write one row per API response (for charting context growth)")
     ap.add_argument("--system", help="write the distinct system instructions found in the log")
+    ap.add_argument("--context", help="write the first message the model received (environment + GEMINI.md)")
+    ap.add_argument("--tools", help="write every tool's name, description, and parameter schema as sent")
     args = ap.parse_args()
 
     # Always UTF-8: shell redirection (`>`) on Windows can produce UTF-16 or cp1252 files.
@@ -170,7 +225,8 @@ def main() -> int:
     if args.system:
         distinct = []
         for obj in read_objects(args.log):
-            for s in find_system_instructions(obj):
+            for raw in find_key(obj, "gen_ai.system_instructions"):
+                s = as_text(raw)
                 if s not in distinct:
                     distinct.append(s)
         if not distinct:
@@ -180,6 +236,27 @@ def main() -> int:
                 for i, s in enumerate(distinct, 1):
                     f.write(f"<!-- variant {i} of {len(distinct)} -->\n{s}\n\n")
             print(f"\nwrote {len(distinct)} distinct system-instruction variant(s) to {args.system}", file=sys.stderr)
+
+    if args.context:
+        text = first_user_message(args.log)
+        if text is None:
+            print("\nNo model input in log (needs telemetry.traces and telemetry.logPrompts = true).", file=sys.stderr)
+        else:
+            with open(args.context, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+            print(f"\nwrote the first model input to {args.context}", file=sys.stderr)
+
+    if args.tools:
+        decls = tool_declarations(args.log)
+        if not decls:
+            print("\nNo tool definitions in log (needs telemetry.traces and telemetry.logPrompts = true).", file=sys.stderr)
+        else:
+            with open(args.tools, "w", encoding="utf-8") as f:
+                for d in decls:
+                    schema = d.get("parametersJsonSchema", d.get("parameters", {}))
+                    f.write(f"## {d.get('name')}\n\n{d.get('description', '')}\n\n")
+                    f.write("```json\n" + json.dumps(schema, indent=2) + "\n```\n\n")
+            print(f"\nwrote {len(decls)} tool declarations to {args.tools}", file=sys.stderr)
     return 0
 
 
