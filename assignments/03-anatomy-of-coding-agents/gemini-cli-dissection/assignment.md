@@ -88,13 +88,40 @@ gemini --version   # record this in your writeup
 Use the **exact pinned version**. The system prompt and tools change between releases, and
 your answers have to match the version you analyzed.
 
-### 3. Sign in with your Google AI Pro account
-Run `gemini` and pick **Sign in with Google**. Use the Google account that has your free
-**Google AI Pro** student plan. The free sign-in tier is enough for this lab, but Pro gives
-you more headroom. Type `/quit` once you're signed in.
+### 3. Get a free Gemini API key and sign in with it
+Gemini CLI signs in with an **API key**. Since June 18, 2026, it no longer accepts
+"Sign in with Google" for personal accounts. That includes the Google AI Pro student plan,
+which fails with *"This client is no longer supported for Gemini Code Assist for
+individuals."* The free API key works fine, and you don't need a credit card.
 
-> If sign-in with a **university Workspace account** fails with an error about a Google
-> Cloud project, use the personal Google account your AI Pro plan is on.
+**Get the key (~2 min):**
+1. Go to https://aistudio.google.com/apikey and sign in with a **personal** Google
+   account. University accounts may have AI Studio turned off.
+2. Accept the terms if asked, then click **Create API key**. If it asks for a project,
+   let it create a default one.
+3. Copy the key, which starts with `AIza…`. Treat it like a password.
+
+**Use it:**
+```bash
+export GEMINI_API_KEY="AIza...your key..."
+gemini
+```
+- When Gemini CLI asks how to authenticate, choose **Use Gemini API key**. If you tried
+  Google sign-in before, type `/auth` inside Gemini CLI to switch.
+- Type `/quit` once you reach the input prompt.
+- `export` lasts only for the current terminal. Run it again in every new terminal before
+  `gemini`. You can also add the line to `~/.zshrc` or `~/.bashrc`, which live in your home
+  folder and are **not** in the repo.
+
+**Free-tier limits:** about **250 requests per day**, Flash models only. This lab uses
+roughly 60–120 requests in total, so it fits. If you get a `429` / quota error, stop
+and continue the next day. On the free tier, Google may use your prompts to improve its
+products. That's fine for this starter repo, but don't paste anything private into the
+agent.
+
+> **Never commit your API key.** Don't put it in any file inside the repo, including
+> `TASK.md`, `GEMINI.md`, notes, or a `.env` in your working copies. If a key ever gets
+> pushed, delete it at https://aistudio.google.com/apikey immediately and create a new one.
 
 ### 4. Make your working copies
 Never run the agent in `starter/` itself. Each run gets its own clean copy under `work/`.
@@ -103,9 +130,23 @@ From the `gemini-cli-dissection/` folder:
 mkdir -p work/prompts work/submission
 for d in run-baseline run-ablation-1 run-ablation-2; do cp -r starter work/$d; done
 cp writeup.md work/writeup.md
-python -m pip install pytest
 git add work && git commit -m "Week 3: add working copies of starter"
 ```
+
+### 5. Create a Python virtual environment
+Still in `gemini-cli-dissection/`, create one environment that all three runs share:
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows (Git Bash): source .venv/Scripts/activate
+python -m pip install -r starter/requirements.txt
+```
+`.venv/` is already gitignored, so it won't end up in your PR.
+
+> **Activate the environment in every new terminal before starting `gemini`**
+> (`source .venv/bin/activate` from `gemini-cli-dissection/`). The agent's shell commands
+> inherit your environment. Without it, the agent's `python -m pytest` fails with
+> `No module named pytest`, and that noise ends up in your trace.
+
 Check that the tests fail before the agent touches anything:
 `(cd work/run-baseline && python -m pytest -q)`.
 
@@ -113,7 +154,7 @@ Check that the tests fail before the agent touches anything:
 PR, so the reviewer can see exactly what the agent changed. Your writeup can cite those
 commits.
 
-### 5. Export the real system prompt
+### 6. Export the real system prompt
 ```bash
 cd work/run-baseline
 GEMINI_WRITE_SYSTEM_MD=../prompts/system.md gemini
@@ -212,9 +253,10 @@ Answer from your trace. **Tag every claim `[OBSERVED]`** (cite a line in
    good?
 5. **The tests.** Did the agent edit any existing test? Was each edit allowed by
    `TASK.md`? Quote the diff.
-6. **Models.** Does the `model` field change between calls? If so, which kinds of calls go
-   to which model, and why would a CLI route this way? (Connects to the lecture's model
-   landscape.)
+6. **Models.** Which model or models appear in the `model` field? Does it change between
+   calls, for example a main model plus a lighter one for routing or summaries? Why would a
+   CLI use different models for different jobs, and what would you expect to change with a
+   paid key that unlocks Pro models? (Connects to the lecture's model landscape.)
 
 ## Part V — Prompt ablation experiment (20 pts)
 Now change the agent's "personality" and measure the effect.
@@ -263,7 +305,7 @@ Everything you submit lives in `gemini-cli-dissection/work/`:
 
 **Before you push**, check for leaks and redact any hits like this: `[REDACTED: email]`.
 ```bash
-grep -rniE "@gmail|@ucsc|email|api[_-]?key" work/submission work/prompts
+git grep -niE "AIza|@gmail|@ucsc|email|api[_-]?key" -- work   # searches only files git tracks
 git status --ignored work | grep telemetry   # must show as ignored, never staged
 ```
 
@@ -299,10 +341,11 @@ versions.
 | Step | PowerShell |
 |---|---|
 | Make working copies (Setup 4) | `New-Item -ItemType Directory -Force work\prompts, work\submission`<br>`foreach ($d in "run-baseline","run-ablation-1","run-ablation-2") { Copy-Item -Recurse starter "work\$d" }`<br>`Copy-Item writeup.md work\writeup.md` |
-| Export system prompt (Setup 5) | `$env:GEMINI_WRITE_SYSTEM_MD = "..\prompts\system.md"; gemini; Remove-Item Env:GEMINI_WRITE_SYSTEM_MD` |
+| Python environment (Setup 5) | `python -m venv .venv`<br>`.venv\Scripts\Activate.ps1`<br>`python -m pip install -r starter\requirements.txt` |
+| Export system prompt (Setup 6) | `$env:GEMINI_WRITE_SYSTEM_MD = "..\prompts\system.md"; gemini; Remove-Item Env:GEMINI_WRITE_SYSTEM_MD` |
 | Delete the log | `Remove-Item -Force .gemini\telemetry.log` |
 | Ablation run (Part V) | `$env:GEMINI_SYSTEM_MD = "..\prompts\system-ablated.md"; gemini; Remove-Item Env:GEMINI_SYSTEM_MD` |
-| Leak check (Deliverables) | `Select-String -Path work\submission\*, work\prompts\* -Pattern "@gmail","@ucsc","email","api_key"`<br>`git status --ignored work \| Select-String telemetry` |
+| Leak check (Deliverables) | `git grep -niE "AIza\|@gmail\|@ucsc\|email\|api[_-]?key" -- work`<br>`git status --ignored work` (`telemetry.log` must be listed as ignored) |
 
 - **Always run the `Remove-Item Env:...` part.** A `$env:` variable stays set for the
   rest of the PowerShell session. A leftover `GEMINI_SYSTEM_MD` would quietly run your
