@@ -14,7 +14,7 @@ class Cart:
         if quantity <= 0:
             raise ValueError("quantity must be positive")
         price_of(sku)  # raises on unknown SKU
-        self.items[sku] = quantity
+        self.items[sku] = self.items.get(sku, 0) + quantity
 
     def remove_item(self, sku: str, quantity: int = 1) -> None:
         if sku not in self.items:
