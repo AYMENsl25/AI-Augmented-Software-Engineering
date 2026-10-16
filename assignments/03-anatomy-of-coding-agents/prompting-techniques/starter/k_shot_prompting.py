@@ -12,8 +12,24 @@ from ollama import chat
 MODEL = "llama3.1:8b"
 NUM_RUNS = 5
 
-# TODO: Fill this in! Include a few labeled examples (k-shot) in the system prompt.
-YOUR_SYSTEM_PROMPT = ""
+# Labeled examples teach the model the categories and exact output format.
+YOUR_SYSTEM_PROMPT = """Classify each customer message for an online store.
+Reply with exactly one lowercase label: billing, shipping, returns, technical, or other.
+Do not add an explanation, punctuation, or any other text.
+
+Examples:
+Message: My payment failed, but the money left my account.
+Label: billing
+Message: The tracking page says my parcel is delayed.
+Label: shipping
+Message: Can I exchange a jacket that does not fit?
+Label: returns
+Message: I cannot sign in because the website shows an error.
+Label: technical
+Message: What time does your store open?
+Label: other
+
+Now classify the next customer message."""
 
 CASES = [
     ("My card was charged twice for order 4412.", "billing"),

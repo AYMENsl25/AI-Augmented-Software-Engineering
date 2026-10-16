@@ -20,13 +20,39 @@ def load_chunks() -> list[str]:
         return [line.strip() for line in f if line.strip()]
 
 
-# TODO: return the subset of chunks relevant to `question` (simple keyword overlap is fine).
+# Select help-center lines most relevant to the question.
 def YOUR_RETRIEVER(question: str, chunks: list[str]) -> list[str]:
-    return []
+    stopwords = {"a", "an", "are", "can", "do", "for", "have", "how", "i", "is", "my", "the", "to", "you", "your"}
+    words = {
+        word.strip(".,:;!?'\" ")
+        for word in question.lower().split()
+    } - stopwords
+    scored = []
+    for chunk in chunks:
+        chunk_words = {
+            word.strip(".,:;!?'\" ")
+            for word in chunk.lower().split()
+        }
+        score = sum(
+            any(
+                len(word) >= 4 and len(chunk_word) >= 4
+                and (word.startswith(chunk_word) or chunk_word.startswith(word))
+                for chunk_word in chunk_words
+            )
+            for word in words
+        )
+        if score:
+            scored.append((score, chunk))
+    best = max((score for score, _ in scored), default=0)
+    return [chunk for score, chunk in scored if score == best]
 
 
-# TODO: Fill this in! Force the model to answer only from the provided context.
-YOUR_SYSTEM_PROMPT = ""
+# Require answers grounded in the retrieved context.
+YOUR_SYSTEM_PROMPT = """You are an online store support assistant. Answer the
+customer's question using only the supplied Context. Do not use outside
+knowledge or invent facts. If the Context is empty or does not contain the
+answer, say politely: I don't know based on our help center information.
+Keep the answer short and state the relevant policy exactly."""
 
 CASES = [
     ("How long do I have to return an item?", ["30 days"]),
