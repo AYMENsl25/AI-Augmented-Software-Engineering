@@ -83,6 +83,20 @@ def test_free_shipping_with_discount():
     assert cart.total() == 5832
 
 
+def test_free_shipping_at_exact_threshold():
+    cart = Cart()
+    cart.add_item("TEE")
+    cart.add_item("CAP", 2)  # 2000 + 3000 = 5000 cents
+    assert cart.total() == 5400  # 5000 + 8% tax; no shipping
+
+
+def test_discount_can_move_order_below_free_shipping_threshold():
+    cart = Cart()
+    cart.add_item("TEE", 3)  # 6000 cents before discount
+    cart.apply_code("SAVE25")  # 4500 cents after discount
+    assert cart.total() == 5459  # 4500 + 8% tax + 599 shipping
+
+
 def test_shipping_not_taxed():
     cart = Cart()
     cart.add_item("MUG")  # subtotal 1200 (< 5000)
