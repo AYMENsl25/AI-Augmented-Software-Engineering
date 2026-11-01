@@ -12,12 +12,13 @@ Test:
 import sqlite3
 import string
 from contextlib import closing
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 DB_PATH = Path(__file__).parent / "links.db"
 ALPHABET = string.ascii_letters + string.digits
@@ -37,9 +38,13 @@ def init_db() -> None:
             """CREATE TABLE IF NOT EXISTS links (
                 id   INTEGER PRIMARY KEY AUTOINCREMENT,
                 code TEXT UNIQUE,
-                url  TEXT NOT NULL
+                url  TEXT NOT NULL,
+                expires_at TEXT
             )"""
         )
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(links)")}
+        if "expires_at" not in columns:
+            conn.execute("ALTER TABLE links ADD COLUMN expires_at TEXT")
         conn.commit()
 
 
@@ -65,25 +70,32 @@ def encode(n: int) -> str:
 
 class ShortenRequest(BaseModel):
     url: str
+    # Cap keeps now + timedelta from overflowing into a 500.
+    expires_in_days: Annotated[int, Field(strict=True, gt=0, le=3650)] | None = None
 
 
 @app.post("/shorten")
-def shorten(req: ShortenRequest):
+def shorten(req: ShortenRequest, now: datetime = Depends(get_now)):
     if not req.url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="url must start with http:// or https://")
+    expires_at = None
+    if req.expires_in_days is not None:
+        expires_at = (now.astimezone(timezone.utc) + timedelta(days=req.expires_in_days)).isoformat()
     with closing(get_db()) as conn:
-        cur = conn.execute("INSERT INTO links (url) VALUES (?)", (req.url,))
+        cur = conn.execute("INSERT INTO links (url, expires_at) VALUES (?, ?)", (req.url, expires_at))
         row_id = cur.lastrowid
         code = encode(row_id)
         conn.execute("UPDATE links SET code = ? WHERE id = ?", (code, row_id))
         conn.commit()
-    return {"code": code, "short_url": f"/{code}"}
+    return {"code": code, "short_url": f"/{code}", "expires_at": expires_at}
 
 
 @app.get("/{code}")
-def redirect(code: str):
+def redirect(code: str, now: datetime = Depends(get_now)):
     with closing(get_db()) as conn:
-        row = conn.execute("SELECT url FROM links WHERE code = ?", (code,)).fetchone()
+        row = conn.execute("SELECT url, expires_at FROM links WHERE code = ?", (code,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="unknown code")
+    if row["expires_at"] and now >= datetime.fromisoformat(row["expires_at"]):
+        raise HTTPException(status_code=410, detail="link expired")
     return RedirectResponse(url=row["url"], status_code=307)
