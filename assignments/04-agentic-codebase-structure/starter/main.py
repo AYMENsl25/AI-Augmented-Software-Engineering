@@ -12,6 +12,7 @@ Test:
 import sqlite3
 import string
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -43,6 +44,11 @@ def init_db() -> None:
 
 
 init_db()
+
+
+def get_now() -> datetime:
+    """Current UTC time. A dependency so tests can override the clock."""
+    return datetime.now(timezone.utc)
 
 
 def encode(n: int) -> str:
