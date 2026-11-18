@@ -1,4 +1,4 @@
-# Lecture 7 — Agent Orchestration
+# Lecture 8 — Agent Orchestration
 
 ## Topics
 - Generator-critic loop

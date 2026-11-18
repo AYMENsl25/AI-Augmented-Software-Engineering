@@ -1,4 +1,4 @@
-"""Recipe Box — starter app for Week 7.
+"""Recipe Box — starter app for Week 8.
 
 A tiny FastAPI service for recipes and tags, with a static frontend. Use it as the
 playground for concurrent multi-agent work and a generator-critic loop.

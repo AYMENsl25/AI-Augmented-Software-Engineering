@@ -1,4 +1,4 @@
-"""Vulnerable Bookstore — starter app for Week 8.
+"""Vulnerable Bookstore — starter app for Week 7.
 
 ⚠️  This app contains INTENTIONAL security vulnerabilities for you to find and fix
 with Semgrep + an AI coding agent. Do NOT deploy it or reuse this code in real projects.
