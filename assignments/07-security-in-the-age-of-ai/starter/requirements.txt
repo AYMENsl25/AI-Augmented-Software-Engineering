@@ -1,0 +1,6 @@
+# requests upgraded from 2.25.1 (CVE-2023-32681 + 4 more advisories); see writeup.md
+fastapi
+uvicorn
+httpx
+pytest
+requests==2.34.2

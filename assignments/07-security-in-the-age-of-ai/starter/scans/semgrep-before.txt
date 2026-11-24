@@ -1,0 +1,58 @@
+                   
+                   
+┌─────────────────┐
+│ 7 Code Findings │
+└─────────────────┘
+                          
+  [36m[22m[24m  main.py[0m
+   ❯❯❱ [1msemgrep.hardcoded-api-secret[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Hard-coded credential 'API_KEY'. Load it from an environment variable or secret store.
+                                                                                                
+           33┆ API_KEY = "sk-live-…REDACTED…"
+            ⋮┆----------------------------------------
+   ❯❯❱ [1msemgrep.hardcoded-api-secret[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Hard-coded credential 'SECRET_TOKEN'. Load it from an environment variable or secret store.
+                                                                                                     
+           34┆ SECRET_TOKEN = "…REDACTED…"
+   
+    ❯❱ [1mpython.fastapi.security.wildcard-cors.wildcard-cors[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          CORS policy allows any origin (using wildcard '*'). This is insecure and should be avoided.
+          Details: https://sg.run/KxApY                                                              
+                                                                                                     
+           41┆ allow_origins=["*"],
+   
+    ❯❱ [1mpython.lang.security.audit.formatted-sql-query.formatted-sql-query[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected possible formatted SQL query. Use parameterized queries instead.
+          Details: https://sg.run/EkWw                                             
+                                                                                   
+          102┆ rows = conn.execute(query).fetchall()
+   
+   ❯❯❱ [1mpython.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Avoiding SQL string concatenation: untrusted input concatenated with raw SQL query can result in SQL
+          Injection. In order to execute raw query safely, prepared statement should be used. SQLAlchemy      
+          provides TextualSQL to easily used prepared statement with named parameters. For complex SQL        
+          composition, use SQL Expression Language or Schema Definition Language. In most cases, SQLAlchemy   
+          ORM will be a better option.                                                                        
+          Details: https://sg.run/2b1L                                                                        
+                                                                                                              
+          102┆ rows = conn.execute(query).fetchall()
+                                   
+  [36m[22m[24m  requirements.txt[0m
+   ❯❯❱ [1msemgrep.outdated-requests-pin[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          requests 2.25.1 has known vulnerabilities (e.g. CVE-2023-32681 Proxy-Authorization leak). Upgrade to
+          >=2.33.0.                                                                                           
+                                                                                                              
+            7┆ requests==2.25.1
+                                    
+  [36m[22m[24m  static\index.html[0m
+   ❯❯❱ [1msemgrep.dom-innerhtml-xss[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Assigning to innerHTML renders untrusted data as HTML (XSS). Use textContent / createElement.
+                                                                                                       
+           16┆ box.innerHTML = reviews.map(t => '<p>' + t + '</p>').join('');

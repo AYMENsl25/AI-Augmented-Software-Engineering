@@ -18,14 +18,14 @@ AI-augmented software engineering is the practice of using AI systems — code a
 4. [Agentic Codebase Structure](lectures/04-agentic-codebase-structure/) — skills, rules, and guardrails; CLAUDE.md / AGENTS.md / SKILL.md / intent.md; hooks; and subagent patterns.
 5. [Advanced Context Management](lectures/05-advanced-context-management/) — a taxonomy of context, context assembly and discovery, the agent runtime pipeline, session management, and MCP fundamentals.
 6. [Agentic Code Review and Testing](lectures/06-agentic-code-review-and-testing/) — deterministic guardrails, LLM-based review, safe deployment, runtime safety, and monitoring agents.
-7. [Agent Orchestration](lectures/07-agent-orchestration/) — the generator-critic loop, the goal pattern, the Ralph loop, running multiple agents, and the subagent pattern.
-8. [Security in the Age of AI](lectures/08-security-in-the-age-of-ai/) — SAST/SCA and secret leaks, prompt injection and agent attack surfaces, and agent-assisted triage.
+7. [Security in the Age of AI](lectures/07-security-in-the-age-of-ai/) — SAST/SCA and secret leaks, prompt injection and agent attack surfaces, and agent-assisted triage.
+8. [Agent Orchestration](lectures/08-agent-orchestration/) — the generator-critic loop, the goal pattern, the Ralph loop, running multiple agents, and the subagent pattern.
 9. [Software Factory and the Future of Software Engineering](lectures/09-software-factory-and-the-future/) — self-running, self-improving systems and where AI software engineering goes next.
 10. [AI-Native Engineering Teams](lectures/10-ai-native-engineering-teams/) — how AI-native teams work, the standardized team stack, and LLM gateways, model routing, and cost optimization.
 
 ## Midterm
 
-The midterm (25 multiple-choice questions, 1 hour, 30% of the grade) covers Lectures 1–5 and their required readings. See the [Midterm Study Guide](resources/midterm-study-guide/).
+The midterm is on Thursday, November 12, 2026, 16:00–18:00: 25–30 multiple-choice questions, 30% of the grade. It is closed book, but you may bring two copies of your handwritten notes, and one copy is collected. It covers Lectures 1–6 and one required paper, *Lost in the Middle* (Liu et al., 2023). See the [Midterm Study Guide](resources/midterm-study-guide/).
 
 ## Repository Structure
 

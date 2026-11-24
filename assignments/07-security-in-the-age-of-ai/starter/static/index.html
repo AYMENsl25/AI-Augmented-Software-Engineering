@@ -8,12 +8,16 @@
   <h1>Reviews</h1>
   <div id="reviews"></div>
   <script>
-    // VULN: renders server-provided review text with innerHTML (stored XSS).
+    // FIXED (XSS): create nodes and set textContent, so review text is never parsed as HTML.
     async function load(bookId) {
-      const res = await fetch('/reviews/' + bookId);
+      const res = await fetch('/reviews/' + encodeURIComponent(bookId));
       const reviews = await res.json();
       const box = document.getElementById('reviews');
-      box.innerHTML = reviews.map(t => '<p>' + t + '</p>').join('');
+      box.replaceChildren(...reviews.map(t => {
+        const p = document.createElement('p');
+        p.textContent = t;
+        return p;
+      }));
     }
     load(1);
   </script>

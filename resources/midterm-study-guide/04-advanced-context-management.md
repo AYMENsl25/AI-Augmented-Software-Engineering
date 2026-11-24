@@ -50,7 +50,7 @@ Slides: [`lectures/05-advanced-context-management/`](../../lectures/05-advanced-
 - **Benefits:** reduced hallucinations (a clear route to reliable external sources), increased utility and automation, easier connections.
 - **Security:** user consent and control; data privacy; **tool safety** (tools can run code — do not trust tool descriptions from unverified servers; ask permission before a tool runs); secure output handling; supply-chain security; monitoring and auditing. The spec says MCP *cannot enforce these at the protocol level* — they fall to the host, the server author and the user.
 
-## Required readings
+## Readings (Lost in the Middle is the one required paper for the midterm)
 
 - **Liu et al. 2023, *Lost in the Middle*.** Multi-document QA and key-value retrieval. Accuracy is highest when the relevant passage is at the **start or end** of the prompt and drops when it is in the **middle** (a U-shaped curve). Longer windows raise the ceiling, not the floor. The single most important fact behind context *management* rather than context *stuffing*.
 - **Anthropic Engineering, *Effective context engineering for AI agents* (Sept 2025).** Introduces **context rot**; argues for **just-in-time retrieval** over pre-loading; three techniques for long-horizon work — **compaction, structured note-taking, sub-agent architectures**; system-prompt "altitude"; tool-set design. First-party engineering writing, not a controlled study.

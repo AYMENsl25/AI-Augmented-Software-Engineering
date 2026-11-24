@@ -42,7 +42,7 @@ Slides: [`lectures/03-anatomy-of-coding-agents/`](../../lectures/03-anatomy-of-c
   5. **Session memory** — the model retains nothing between calls; the harness stores state on disk: a full **transcript** (append) and a distilled **working memory** (rewrite).
   6. **Delegation to subagents** — side questions run in parallel in their own context while the main agent keeps working.
 
-## Required readings
+## Readings (background)
 
 - **Vaswani et al. 2017, *Attention Is All You Need*.** Self-attention, multi-head attention, positional information, parallel sequence processing. Be able to explain what attention buys compared with recurrence.
 - **Video: *Visual representation of coding agents and their limitations*.** The system *around* the model: context gathering, planning, tool calls, feedback loops, and where they break. Distinguish a **model** failure (knowledge) from a **system / agent-loop** failure.

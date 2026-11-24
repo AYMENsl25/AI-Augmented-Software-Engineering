@@ -10,8 +10,8 @@ open PRs, run an **AI reviewer**, and compare its review to your own.
 A working starter app is in [`starter/`](starter/) — you extend it, you don't build it.
 
 > **IDE-agnostic.** Implement with your Week 1 agent (Antigravity by default). For the
-> AI review, use any AI PR reviewer — **Graphite Diamond** (default), CodeRabbit, or
-> Copilot review. Name the one you used.
+> AI review, use any AI PR reviewer — **CodeRabbit** (default), Graphite Agent (formerly
+> Diamond), or Copilot review. Name the one you used.
 
 ## Learning goals
 - Set up deterministic guardrails as a first line of defense.
@@ -25,8 +25,9 @@ A working starter app is in [`starter/`](starter/) — you extend it, you don't 
 cd starter && pip install -r requirements.txt && pytest   # 3 tests should pass
 uvicorn main:app --reload
 ```
-Sign up for your AI reviewer (Graphite: https://app.graphite.dev/signup) and install its
-GitHub app so it can comment on PRs.
+Make your repo **public** (CodeRabbit is free on public repos; private repos only get a PR
+summary). Sign in at https://coderabbit.ai with GitHub and add your repo. It reviews every
+PR automatically; comment `@coderabbitai review` on a PR to re-run it.
 
 ## What to do
 **Part I — guardrails.** Add lint+format (black+ruff) and confirm `pytest` fails the

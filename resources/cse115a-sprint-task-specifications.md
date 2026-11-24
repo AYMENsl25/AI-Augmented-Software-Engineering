@@ -5,7 +5,7 @@ Fall 2026 · Section 01 and Section 02
 
 ## Overview
 
-Every sprint, you write two of your own tasks in full, with six fields, before you implement them.
+Every sprint, you write two of your own tasks in full, with five fields, before you implement them.
 
 You already break user stories into tasks in the sprint plan.
 
@@ -19,6 +19,7 @@ You own at least two tasks each sprint. Each task must meet all of these:
 
 - You are the only assignee. You write the task file (you will discuss and clarify it with your team members), the tests, and the implementation. Teammates may review. They do not commit to your task branch.
 - Your two tasks are different slices. A revision, rename, or follow-up fix of the first is not a second task.
+- Each task ID is used only once in your team's repository, in any sprint. Agree on task IDs with your team, because the ID also names your git tags.
 - Estimated at 2 hours or more, and it changes behavior a user or another part of the system can observe.
 - Small enough that one person can finish within 2–3 days, including review.
 - The task file is created before any implementation code.
@@ -33,7 +34,6 @@ You own at least two tasks each sprint. Each task must meet all of these:
 | Specs | Defines observable behavior | Inputs, outputs, states, and edge cases. Name every endpoint, function, file, or UI element your tests touch. |
 | Requirements | Sets constraints | Data rules, auth, code that must stay intact, libraries you must use or avoid. |
 | Acceptance criteria | Defines done | A numbered pass/fail list. Each item is one outcome a reviewer can check. |
-| Tests | Proves each criterion | Per test: file, test name, setup, what it asserts, and which criterion it covers. |
 
 We will cover all of these concepts in lecture. If you are not sure how to write these sections, talk to your team and your TAs.
 
@@ -73,15 +73,17 @@ Serves US-1 (log in with a university email). This task covers the rejection pat
 2. No session cookie is set on rejection.
 3. A `@ucsc.edu` email, in any letter case, is not rejected by this check.
 4. A lookalike domain such as `ucsc.edu.evil.com` is rejected.
-
-## Tests
-File: `tests/US-1-T-1_login_email` (use your framework’s extension)
-Setup for all: start the app with an empty user store and send requests to `/api/login`.
 ```
 
 ## Workflow
 
 Steps below use `US-1-T-1` (User Story 1, Task 1) as the example task id, swap in your own.
+
+**Team setup (once, before your first task)**
+- The repository owner or an admin installs the course GitHub App on the team repository. In the Repo Metrics app, click **Install the GitHub App** (it pops up when you open the dashboard, and the button stays above your tasks), choose the account that owns the team repository, pick **Only select repositories**, select it, and click **Install**. The app can only read that one repository and never changes it.
+- If the repository belongs to a GitHub organization and you see **Request** instead of **Install**, an organization owner approves it under the organization's **Settings → GitHub Apps**.
+- Every team member who submits tasks needs write access to the team repository.
+- Pull requests must come from the team repository, not a fork.
 
 **1. Create the task**
 - Write the task file at `docs/tasks/sprint-1/US-1-T-1.md` (use your sprint number, not the letter `N`).
@@ -105,10 +107,21 @@ git tag US-1-T-1-base
 git push origin task/US-1-T-1 US-1-T-1-base
 ```
 - This commit must stay the first commit on the branch. Do not rebase, amend, or force-push it after tagging.
+- If `git push` says the tag already exists, a teammate is probably using this task ID. Don't force-push it; pick a new ID and redo steps 1–4.
 - If this commit isn't first, or you changed it after tagging, see [Fixing mistakes](#fixing-mistakes).
 
 **5. Implement**
 - Add the implementation and its tests on the same branch.
+- Write at least one test per acceptance criterion and start each test name with the task id. For the worked example:
+
+  | Test name | Setup | Asserts | Criterion |
+  |---|---|---|---|
+  | US-1-T-1 rejects a non-university email | POST `student@gmail.com` | status 400; error is "Use your university email" | 1 |
+  | US-1-T-1 sets no session cookie on rejection | same request | no `Set-Cookie` header | 2 |
+  | US-1-T-1 does not reject a ucsc.edu email in any case | POST `student@ucsc.edu`, then `student@UCSC.EDU` | status is not 400 for either | 3 |
+  | US-1-T-1 rejects a lookalike domain | POST `student@ucsc.edu.evil.com` | status 400 | 4 |
+
+- Put tests in a `tests/` folder or name them like `*.test.ts` so the app can find them.
 - Do not weaken a test to make it pass.
 - **Required:** One task per pull request: the PR adds only this task's task file. Open a separate pull request for each task.
 - **Recommended:** Reorganizing files from earlier tasks (for example, moving the tests folder, or updating an earlier task's task file to match) is its own change. Do it in a separate pull request that you don't submit in the app, merge it, then run `git fetch origin` and `git merge origin/main` on your task branch (don't rebase). If it ends up in a task's pull request anyway, the app still accepts it, and the earlier task's grade doesn't change. Moving this task's own new files is fine.
@@ -146,7 +159,7 @@ Submit in the [Repo Metrics app](https://cse115a-repo-metrics-production.up.rail
 **First time only**
 1. Sign in with your UCSC Google account.
 2. Enter the course code from your instructor.
-3. Connect GitHub. If your team repository belongs to a GitHub organization, click **Grant** next to that organization on the GitHub screen, or the app cannot read your pull requests.
+3. Connect GitHub. This only shares your GitHub username, so the app can tell which pull requests are yours. Repository access comes from the GitHub App your team installed.
 
 **Every sprint**
 1. Open **Assignment N**, where `N` is the sprint number.
@@ -180,6 +193,8 @@ git tag -f US-1-T-1-base <first commit sha>
 git push -f origin US-1-T-1-base
 ```
 Then press **Re-check** in the app.
+
+If the task card says the tag is on someone else's commit, a teammate is probably using the same task ID. Don't move it, because that turns their spec-first check red; ask a TA.
 
 **If the first commit isn't your task file alone** (code came first, or the spec commit also contains code), it can't be fixed on that branch. What to do next depends on whether the PR is merged.
 
@@ -227,13 +242,12 @@ For each sprint, write **one paragraph** that:
 Each task is scored out of 10. Your sprint score is the average of your two tasks. A missing task scores 0. The grader reads the task file and checks the merged pull request, and the two tags. An instructor reviews every grade before you see it.
 
 | Criterion | Full credit | Partial | None | Pts |
-|---|---|---|---|---|
-| Scope — title, description, requirements | Specific outcome, clear out-of-scope, real constraints | Vague title or missing scope | Missing, or copied between fields | 1 |
-| Specs | Observable behavior and edge cases; names every interface the tests use | Behavior stated, gaps remain | Describes implementation, or missing | 2 |
-| Acceptance criteria | Every item pass/fail and checkable | Some items vague | Missing or not checkable | 2 |
-| Tests section | Every criterion mapped to a test with setup and assertion | Some criteria unmapped | Names only, or missing | 1 |
-| Test quality | Tests assert the criteria and fail without the implementation | Some weak or trivial assertions | Tests pass even without the implementation | 1 |
-| Tests pass | All task tests pass at `-done`; existing tests still pass | Some task tests still failing | Tests do not run, all fail, or are missing | 2 |
-| Process | Spec committed first, both tags pushed, Scrum board card present, both tasks submitted in the app | One step missing or late | Implementation committed before the task file | 1 |
+|---|---|---|---|-----|
+| Scope — title, description, requirements | Specific outcome, clear out-of-scope, real constraints | Vague title or missing scope | Missing, or copied between fields | 1   |
+| Specs | Observable behavior and edge cases; names every interface the tests use | Behavior stated, gaps remain | Describes implementation, or missing | 2   |
+| Acceptance criteria | Every item pass/fail and checkable | Some items vague | Missing or not checkable | 2   |
+| Test quality | Tests assert the criteria and fail without the implementation | Some weak or trivial assertions | Tests pass even without the implementation | 2   |
+| Tests pass | All task tests pass at `-done`; existing tests still pass | Some task tests still failing | Tests do not run, all fail, or are missing | 2   |
+| Process | Spec committed first, both tags pushed, Scrum board card present, both tasks submitted in the app | One step missing or late | Implementation committed before the task file | 1   |
 
 Consent to the research, whether a task is later chosen for the benchmark, which AI tools you used, and how any AI tool performs on your task do not affect your grade.

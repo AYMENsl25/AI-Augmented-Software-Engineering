@@ -28,7 +28,7 @@ Slides: [`lectures/02-specs-driven-development/`](../../lectures/02-specs-driven
 - **SDD frameworks:** GitHub Spec Kit (constitution → specify → plan → tasks → implement → converge; open source, works with most agents), Kiro (AWS; EARS requirements → design → tasks; IDE with specs built in), OpenSpec (propose → apply → archive; lightweight on existing code), BMAD Method (analyst/PM/architect/developer agents; simulates a whole team), Tessl (one spec per code file; spec-as-source experiments).
 - **Three things to remember:** the substrate changed, the discipline didn't; speed amplifies everything (a bad spec gets built fast too); match the ceremony to the risk.
 
-## Required readings
+## Readings (background)
 
 - **Graziano, *AI-Native Software Engineering*, ch. 5 "Spec-Driven Development" (O'Reilly).** What makes a spec useful to an agent rather than merely descriptive to a human; which parts establish behaviour, constraints, verification and boundaries.
 - **Piskala 2026, *Spec-Driven Development: From Code to Contract*.** A practitioner/position paper (not a controlled study). Specs become the source of truth; code is generated or verified against them. Defines **spec-first, spec-anchored, spec-as-source**. SDD has a cost — match rigor to risk, reversibility, domain complexity, coordination needs and lifetime.

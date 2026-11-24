@@ -1,0 +1,34 @@
+# Local rules for gaps in `--config auto` (registry SAST rules don't flag these here).
+rules:
+  - id: hardcoded-api-secret
+    languages: [python]
+    severity: ERROR
+    metadata: {category: secrets, cwe: "CWE-798: Use of Hard-coded Credentials"}
+    message: Hard-coded credential '$NAME'. Load it from an environment variable or secret store.
+    patterns:
+      - pattern: $NAME = "$VALUE"
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(api_?key|secret|token|password|passwd).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: .{8,}
+
+  - id: dom-innerhtml-xss
+    languages: [generic]
+    severity: ERROR
+    paths: {include: ["*.html", "*.js"]}
+    metadata: {category: sast, cwe: "CWE-79: Cross-site Scripting"}
+    message: Assigning to innerHTML renders untrusted data as HTML (XSS). Use textContent / createElement.
+    pattern: $EL.innerHTML = ...
+
+  - id: outdated-requests-pin
+    languages: [generic]
+    severity: ERROR
+    paths: {include: ["requirements*.txt"]}
+    metadata:
+      category: sca
+      references: ["PYSEC-2023-74 (CVE-2023-32681) fixed in 2.31.0", "pip-audit: 4 advisories for 2.25.1"]
+    message: requests $V has known vulnerabilities (e.g. CVE-2023-32681 Proxy-Authorization leak). Upgrade to >=2.33.0.
+    patterns:
+      - pattern-regex: requests==(?P<V>2\.(?:[0-9]|[12][0-9]|3[0-2])(?:\.\d+)?)\b

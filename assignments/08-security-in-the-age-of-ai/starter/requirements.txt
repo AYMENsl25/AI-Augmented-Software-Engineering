@@ -1,7 +1,0 @@
-# NOTE: `requests` is intentionally pinned to an OLD version so your SCA / dependency
-# scan has something to flag. Do not "fix" it until the assignment asks you to.
-fastapi
-uvicorn
-httpx
-pytest
-requests==2.25.1

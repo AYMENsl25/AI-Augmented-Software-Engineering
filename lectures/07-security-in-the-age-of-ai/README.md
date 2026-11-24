@@ -1,4 +1,4 @@
-# Lecture 8 — Security in the Age of AI
+# Lecture 7 — Security in the Age of AI
 
 ## Topics
 - SAST / SCA, dependency and secret-leak vulnerabilities

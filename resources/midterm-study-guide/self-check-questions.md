@@ -1,6 +1,6 @@
 # Self-check questions
 
-Answer these without looking. Each is in the style of the exam. Answers are at the bottom.
+Answer these without looking. Questions 26–30 cover Week 6. Each is in the style of the exam. Answers are at the bottom.
 
 1. A developer pastes an error message back into the chat, accepts whatever comes out, and ships it because "it seems to work." Which point on the spectrum is this, and what single factor places it there?
 2. The Copilot study reported a 55.8% speed-up. What does that number *not* tell you, according to the reading notes?
@@ -27,6 +27,11 @@ Answer these without looking. Each is in the style of the exam. Answers are at t
 23. What was the headline finding of *Evaluating AGENTS.md* on task success and cost?
 24. According to *Guardrails Beat Guidance*, which polarity of rule tends to help and which tends to hurt?
 25. A subagent is configured with `is_background: true` and `readonly: true`. What do those two fields control?
+26. A test runs every line of a new discount function and asserts only `cart is not None`. What is this called, and which Layer 1 technique would expose it?
+27. Why should the agent that wrote a change not be the one that reviews it, and what does the lecture recommend instead?
+28. Name the three steps for safely renaming a database column, and which step cannot be rolled back.
+29. In the human-in-the-loop design, what can the AI risk scorer do that the path gate cannot, and what can it never do?
+30. On the trust ladder, which rung do you start on, and what is the default answer for autonomy on critical paths?
 
 ## Answers
 
@@ -55,6 +60,11 @@ Answer these without looking. Each is in the style of the exam. Answers are at t
 23. Context files generally did not improve task success and raised inference cost by more than 20% on average.
 24. Negative constraints help; positive directives tend to hurt.
 25. `is_background` sets whether the parent waits for the result; `readonly` restricts the subagent from making changes.
+26. Coverage theater (full line coverage, no behaviour verified). Mutation testing exposes it: mutants of the function survive because no test checks the result.
+27. It mostly agrees with itself (sycophancy). Use a fresh session with a hostile brief ("assume it has bugs"), ideally with a different model.
+28. Add (new column, copy data) → switch (code uses the new column) → remove (delete the old column weeks later). Remove is the step with no way back.
+29. The scorer can judge risks nobody named in advance and add a human review; it can never override the path gate, and when unsure it must round up to a human.
+30. Shadow mode (it suggests, a human decides). Autonomy on critical paths defaults to no.
 
 ---
 
