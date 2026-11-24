@@ -1,4 +1,4 @@
-# Week 7 Writeup: Recipe Box Sprint
+# Week 8 Writeup (Agent Orchestration; was Week 7 before the course swap): Recipe Box Sprint
 
 **Orchestrator:** Claude Code (main session), which spawned Claude Code subagents as the
 workers. Each worker ran in its own **git worktree**.

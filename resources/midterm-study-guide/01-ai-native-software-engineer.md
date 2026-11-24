@@ -26,7 +26,7 @@ Slides: [`lectures/01-setup-environments/`](../../lectures/01-setup-environments
 - DORA 2025: ~90% of software engineers use AI at work; ~40% rely on it a lot; ~3/4 of code at Google is AI-generated.
 - Anthropic, *How AI assistance impacts the formation of coding skills* (2026): 52 mostly-junior engineers, Trio task. AI-assisted group was ~2 minutes faster (not significant) but scored **17 percentage points lower** on the knowledge quiz (50% vs 67%, p = 0.010). *Bottom line: AI may make you faster on a task while reducing how much you learn from it.*
 
-## Required readings
+## Readings (background)
 
 - **Peng et al. 2023, *The Impact of AI on Developer Productivity: Evidence from GitHub Copilot*.** Controlled experiment; developers implemented a JavaScript HTTP server with or without Copilot. Copilot group finished **55.8% faster**. Know what it does *not* show: a universal productivity gain, or anything about quality, maintainability, review effort or learning. "Developer productivity" is a measurement choice.
 - **Hassan et al. 2024, *Towards AI-Native Software Engineering (SE 3.0)*.** A *vision* paper, not evidence: intent-centric, conversation-oriented development where AI moves from task-level copilot toward teammate. Be able to tell a vision claim from an empirical result.

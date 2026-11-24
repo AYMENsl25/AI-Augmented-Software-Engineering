@@ -1,4 +1,4 @@
-# Week 7 — Agent Orchestration: The Recipe Box Sprint
+# Week 8 — Agent Orchestration: The Recipe Box Sprint
 
 **Estimated time: ~3 hours.**
 

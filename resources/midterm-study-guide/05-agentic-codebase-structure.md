@@ -53,7 +53,7 @@ The lecture's framing: a repository can be *designed for agents*. Each mechanism
 - `AGENTS.md` for project orientation (commands, links to testing/debugging notes); skills for detailed procedures. Commit project instructions and skills with the repository. Rules at user, team and repository level — place instructions at the level where they apply.
 - Tools: identify required systems, provide connections (tools or MCP servers), allow the needed permissions, verify the agent can use each tool. Improve tools by observing how the agent uses them, finding missed arguments or distracting output, and adjusting the interface.
 
-## Required readings
+## Readings (background)
 
 - **Yang et al. 2024, *SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering*.** Introduces the **agent-computer interface (ACI)**: the commands, feedback formats and guardrails through which a model acts on a repository. Redesigning the interface *without changing the model* materially changed how often real GitHub issues were resolved. Principles: simple commands, concise feedback, guardrails against common mistakes (e.g. a file viewer that shows a limited window; an edit command that runs a linter and rejects broken edits). *An agent's behaviour is a product of model and interface — you control the interface.*
 - **Gloaguen et al. 2026, *Evaluating AGENTS.md: Are Repository-Level Context Files Helpful?*** Controlled comparison of no context file vs LLM-generated vs developer-written. Headline: context files **generally did not improve task success** and raised inference cost by **more than 20%** on average. A context file is context — it competes for the same attention budget, so every line should change a decision the agent would otherwise get wrong.
