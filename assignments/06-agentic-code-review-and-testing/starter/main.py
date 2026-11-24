@@ -12,16 +12,17 @@ Test:
 
 import sqlite3
 from contextlib import closing
+from datetime import date
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from datetime import date
-
 from pydantic import BaseModel, field_validator
 
 DB_PATH = Path(__file__).parent / "habits.db"
 
 app = FastAPI(title="Habit Tracker")
+
+MAX_NAME_LEN = 100
 
 
 def get_db() -> sqlite3.Connection:
@@ -54,8 +55,11 @@ class HabitIn(BaseModel):
     @field_validator("name")
     @classmethod
     def name_not_empty(cls, v: str) -> str:
-        if v == "":
-            raise ValueError("name must not be empty")
+        v = v.strip()
+        if not v:
+            raise ValueError("name must not be empty or whitespace")
+        if len(v) > MAX_NAME_LEN:
+            raise ValueError(f"name must be at most {MAX_NAME_LEN} characters")
         return v
 
 
@@ -65,10 +69,14 @@ class CheckinIn(BaseModel):
     @field_validator("day")
     @classmethod
     def day_is_iso_date(cls, v: str) -> str:
+        # date.fromisoformat also accepts "20260922" and "2026-W39-1"; require the
+        # canonical YYYY-MM-DD so stored days sort and compare correctly.
         try:
-            date.fromisoformat(v)
+            parsed = date.fromisoformat(v)
         except ValueError:
-            raise ValueError("day must be an ISO date like 2026-09-22")
+            parsed = None
+        if parsed is None or parsed.isoformat() != v:
+            raise ValueError("day must be a real date in YYYY-MM-DD format, e.g. 2026-09-22")
         return v
 
 
