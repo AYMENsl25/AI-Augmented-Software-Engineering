@@ -11,6 +11,7 @@ Test:
 """
 
 import sqlite3
+from datetime import date, timedelta
 from contextlib import closing
 from pathlib import Path
 
@@ -87,3 +88,20 @@ def list_checkins(habit_id: int):
             "SELECT day FROM checkins WHERE habit_id = ? ORDER BY day", (habit_id,)
         ).fetchall()
     return [r["day"] for r in rows]
+
+
+@app.get("/habits/{habit_id}/streak")
+def get_streak(habit_id: int):
+    with closing(get_db()) as conn:
+        rows = conn.execute(
+            "SELECT day FROM checkins WHERE habit_id = ? ORDER BY day DESC", (habit_id,)
+        ).fetchall()
+    streak = 0
+    expected = date.today()
+    for r in rows:
+        if date.fromisoformat(r["day"]) == expected:
+            streak += 1
+            expected -= timedelta(days=1)
+        else:
+            break
+    return {"habit_id": habit_id, "streak": streak}
