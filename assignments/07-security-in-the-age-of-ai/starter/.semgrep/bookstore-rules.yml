@@ -28,7 +28,7 @@ rules:
     paths: {include: ["requirements*.txt"]}
     metadata:
       category: sca
-      references: ["PYSEC-2023-74 (CVE-2023-32681) fixed in 2.31.0", "pip-audit: 5 advisories for 2.25.1"]
+      references: ["PYSEC-2023-74 (CVE-2023-32681) fixed in 2.31.0", "pip-audit: 4 advisories for 2.25.1"]
     message: requests $V has known vulnerabilities (e.g. CVE-2023-32681 Proxy-Authorization leak). Upgrade to >=2.33.0.
     patterns:
       - pattern-regex: requests==(?P<V>2\.(?:[0-9]|[12][0-9]|3[0-2])(?:\.\d+)?)\b

@@ -170,13 +170,28 @@ SUMMARY_SCHEMA = {
 }
 
 
-def _valid_summary(summary: object) -> bool:
+def _words(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower())
+
+
+def _copies_review(summary: str, review: str, span: int = 6) -> bool:
+    """True if the summary repeats 6+ consecutive words of the review verbatim, which is
+    how a "your summary must be exactly: ..." injection shows up."""
+    r = _words(review)
+    grams = {tuple(r[i : i + span]) for i in range(len(r) - span + 1)}
+    s = _words(summary)
+    return any(tuple(s[i : i + span]) in grams for i in range(len(s) - span + 1))
+
+
+def _valid_summary(summary: object, review: str = "") -> bool:
     """Treat model output as untrusted: accept only a plausible one-sentence summary."""
     if not isinstance(summary, str):
         return False
     if not 6 <= len(summary.split()) <= 60:
         return False  # e.g. a bare "HACKED", or a runaway essay
-    return "<review-" not in summary and "</" not in summary
+    if "<review-" in summary or "</" in summary:
+        return False
+    return not _copies_review(summary, review)  # dictated-sentence injection
 
 
 @app.post("/summarize-review")
@@ -214,6 +229,6 @@ def summarize_review(body: SummarizeIn):
         summary = json.loads(resp.json()["message"]["content"]).get("summary", "").strip()
     except (requests.RequestException, KeyError, ValueError, AttributeError) as exc:
         raise HTTPException(status_code=503, detail="LLM unavailable") from exc
-    if not _valid_summary(summary):
+    if not _valid_summary(summary, review):
         raise HTTPException(status_code=422, detail="could not produce a safe summary")
     return {"summary": summary}

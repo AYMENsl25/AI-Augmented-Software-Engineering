@@ -9,13 +9,13 @@
           [31m[1m[24m❰❰ Blocking ❱❱[0m
           Hard-coded credential 'API_KEY'. Load it from an environment variable or secret store.
                                                                                                 
-           33┆ API_KEY = "sk-live-8f3c1d9e2b7a4f60bookstore-demo-key"
+           33┆ API_KEY = "sk-live-…REDACTED…"
             ⋮┆----------------------------------------
    ❯❯❱ [1msemgrep.hardcoded-api-secret[0m
           [31m[1m[24m❰❰ Blocking ❱❱[0m
           Hard-coded credential 'SECRET_TOKEN'. Load it from an environment variable or secret store.
                                                                                                      
-           34┆ SECRET_TOKEN = "supersecret-admin-token"
+           34┆ SECRET_TOKEN = "…REDACTED…"
    
     ❯❱ [1mpython.fastapi.security.wildcard-cors.wildcard-cors[0m
           [31m[1m[24m❰❰ Blocking ❱❱[0m
