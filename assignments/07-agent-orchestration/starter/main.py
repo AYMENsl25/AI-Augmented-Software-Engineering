@@ -100,7 +100,7 @@ import re
 from fractions import Fraction
 
 # Leading quantity: "200", "1.5", "1,5", "1/2", "1 1/2", optionally a range "2-3" / "2–3".
-_NUM = r"\d+\s+\d+/\d+|\d+/\d+|\d+(?:[.,]\d+)?"
+_NUM = r"\d+\s+\d+/\d+|\d+/\d+|\d[\d.,]*\d|\d"
 _QTY = re.compile(rf"^\s*({_NUM})(?:\s*([-–])\s*({_NUM}))?(.*)$", re.S)
 
 
@@ -111,8 +111,17 @@ def _fmt(qty: Fraction) -> str:
     return f"{r:g}" if r or not x else f"{x:.2g}"  # never show a nonzero amount as "0"
 
 
+def _parse(num: str) -> Fraction:
+    """"1,500" -> 1500 (thousands), "1,5" -> 1.5 (decimal comma); "1.000,5" raises ValueError."""
+    if "," in num and "." in num:
+        raise ValueError("ambiguous separators")  # never guess a quantity
+    if re.fullmatch(r"\d{1,3}(,\d{3})+", num):
+        return Fraction(num.replace(",", ""))
+    return Fraction(num.replace(",", "."))
+
+
 def _scale(num: str, factor: float) -> str:
-    qty = sum(Fraction(p.replace(",", ".")) for p in num.split()) * Fraction(str(factor))
+    qty = sum(_parse(p) for p in num.split()) * Fraction(str(factor))
     return _fmt(qty)
 
 
@@ -126,7 +135,7 @@ def scale_ingredient(line: str, factor: float) -> str:
         out = _scale(low, factor)
         if high:
             out += dash + _scale(high, factor)
-    except ZeroDivisionError:  # "1/0 cup" is user input; leave it alone
+    except (ZeroDivisionError, ValueError):  # "1/0 cup", "1.000,5 g": leave user input alone
         return line
     return out + rest
 

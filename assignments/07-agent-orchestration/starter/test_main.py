@@ -87,3 +87,12 @@ def test_scaled_echoes_factor_and_min_factor():
     rid = client.post("/recipes", json={"title": "F", "ingredients": ["2 eggs"]}).json()["id"]
     assert client.get(f"/recipes/{rid}/scaled?factor=1.5").json()["factor"] == 1.5
     assert client.get(f"/recipes/{rid}/scaled?factor=0.001").status_code == 422
+
+
+def test_scale_thousands_separators():
+    assert scale_ingredient("1,500 g flour", 2) == "3000 g flour"
+    assert scale_ingredient("12,000 mg salt", 0.5) == "6000 mg salt"
+    assert scale_ingredient("1,5 l water", 2) == "3 l water"
+    assert scale_ingredient("1,25 kg sugar", 2) == "2.5 kg sugar"
+    assert scale_ingredient("1.000,5 g flour", 2) == "1.000,5 g flour"
+    assert scale_ingredient("1.2.3 g flour", 2) == "1.2.3 g flour"
