@@ -1,0 +1,119 @@
+TOOLS: ['search_countries', 'get_country_details']
+
+> search_countries({"query": "united", "limit": 3})
+{
+  "name": "United Arab Emirates",
+  "capital": "Abu Dhabi",
+  "region": "Asia",
+  "subregion": "Western Asia"
+}
+{
+  "name": "United Kingdom",
+  "capital": "London",
+  "region": "Europe",
+  "subregion": "Northern Europe"
+}
+{
+  "name": "Mexico",
+  "capital": "Mexico City",
+  "region": "Americas",
+  "subregion": "North America"
+}
+
+> get_country_details({"name": "Germany"})
+{
+  "name": "Germany",
+  "official_name": "Federal Republic of Germany",
+  "cca3": "DEU",
+  "currencies": [
+    {
+      "code": "EUR",
+      "name": "Euro",
+      "symbol": "€"
+    }
+  ],
+  "languages": [
+    "German"
+  ],
+  "borders": [
+    "Austria",
+    "Belgium",
+    "Czechia",
+    "Denmark",
+    "France",
+    "Luxembourg",
+    "Netherlands",
+    "Poland",
+    "Switzerland"
+  ],
+  "flag_url": "https://raw.githubusercontent.com/mledoze/countries/master/data/deu.svg"
+}
+
+> get_country_details({"name": "JP"})
+{
+  "name": "Japan",
+  "official_name": "Japan",
+  "cca3": "JPN",
+  "currencies": [
+    {
+      "code": "JPY",
+      "name": "Japanese yen",
+      "symbol": "¥"
+    }
+  ],
+  "languages": [
+    "Japanese"
+  ],
+  "borders": [],
+  "flag_url": "https://raw.githubusercontent.com/mledoze/countries/master/data/jpn.svg"
+}
+
+> search_countries({"query": "   "})
+{
+  "error": "query must be a non-empty string"
+}
+
+> search_countries({"query": "a", "limit": 0})
+{
+  "error": "limit must be an integer between 1 and 50"
+}
+
+> search_countries({"query": "zzzz"})
+
+
+> get_country_details({"name": ""})
+{
+  "error": "name must be a non-empty string"
+}
+
+> get_country_details({"name": "Atlantis"})
+{
+  "error": "no single country matches 'Atlantis'",
+  "hint": "use search_countries to find the exact name"
+}
+
+> get_country_details({"name": "guinea"})
+{
+  "name": "Guinea",
+  "official_name": "Republic of Guinea",
+  "cca3": "GIN",
+  "currencies": [
+    {
+      "code": "GNF",
+      "name": "Guinean franc",
+      "symbol": "Fr"
+    }
+  ],
+  "languages": [
+    "French"
+  ],
+  "borders": [
+    "Ivory Coast",
+    "Guinea-Bissau",
+    "Liberia",
+    "Mali",
+    "Senegal",
+    "Sierra Leone"
+  ],
+  "flag_url": "https://raw.githubusercontent.com/mledoze/countries/master/data/gin.svg"
+}
