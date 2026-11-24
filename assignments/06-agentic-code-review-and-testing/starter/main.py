@@ -11,8 +11,8 @@ Test:
 """
 
 import sqlite3
-from datetime import date, timedelta
 from contextlib import closing
+from datetime import date, timedelta
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -90,18 +90,33 @@ def list_checkins(habit_id: int):
     return [r["day"] for r in rows]
 
 
+def today() -> date:
+    """Current date. A function so tests can freeze it."""
+    return date.today()
+
+
 @app.get("/habits/{habit_id}/streak")
 def get_streak(habit_id: int):
+    """Consecutive days with a check-in, ending today. 0 if there is no check-in today."""
+    current = today()
     with closing(get_db()) as conn:
+        if conn.execute("SELECT 1 FROM habits WHERE id = ?", (habit_id,)).fetchone() is None:
+            raise HTTPException(status_code=404, detail="unknown habit")
+        # DISTINCT: several check-ins on one day count once.
+        # day <= today: future-dated check-ins must not break the run.
         rows = conn.execute(
-            "SELECT day FROM checkins WHERE habit_id = ? ORDER BY day DESC", (habit_id,)
+            "SELECT DISTINCT day FROM checkins WHERE habit_id = ? AND day <= ? ORDER BY day DESC",
+            (habit_id, current.isoformat()),
         ).fetchall()
     streak = 0
-    expected = date.today()
+    expected = current
     for r in rows:
-        if date.fromisoformat(r["day"]) == expected:
-            streak += 1
-            expected -= timedelta(days=1)
-        else:
+        try:
+            day = date.fromisoformat(r["day"])
+        except ValueError:
+            continue  # legacy malformed row: ignore rather than 500
+        if day != expected:
             break
-    return {"habit_id": habit_id, "streak": streak}
+        streak += 1
+        expected -= timedelta(days=1)
+    return {"habit_id": habit_id, "streak": streak, "as_of": current.isoformat()}
