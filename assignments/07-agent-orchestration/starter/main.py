@@ -80,10 +80,16 @@ def create_recipe(recipe: RecipeIn):
 
 
 @app.get("/recipes")
-def list_recipes():
+def list_recipes(tag: str | None = None):
     with closing(get_db()) as conn:
         rows = conn.execute("SELECT * FROM recipes ORDER BY id").fetchall()
-    return [_row_to_recipe(r) for r in rows]
+    recipes = [_row_to_recipe(r) for r in rows]
+    # Blank/whitespace-only tag is treated as "no filter" (lenient, matches an empty search box).
+    needle = (tag or "").strip().casefold()
+    if not needle:
+        return recipes
+    # ponytail: filters in Python (tags are a JSON column); move to SQL/json_each if the table grows large
+    return [r for r in recipes if any(t.strip().casefold() == needle for t in r["tags"])]
 
 
 @app.get("/recipes/{recipe_id}")
