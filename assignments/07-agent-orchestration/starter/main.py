@@ -15,7 +15,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
@@ -93,3 +93,28 @@ def get_recipe(recipe_id: int):
     if row is None:
         raise HTTPException(status_code=404, detail="unknown recipe")
     return _row_to_recipe(row)
+
+
+# --- Task 3: ingredient scaling ---
+import re
+from fractions import Fraction
+
+# Leading quantity: "200", "1.5", "1/2", or "1 1/2", followed by the rest of the line.
+_QTY = re.compile(r"^\s*(\d+\s+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?)(.*)$", re.S)
+
+
+def scale_ingredient(line: str, factor: float) -> str:
+    """Scale the leading quantity of an ingredient line; lines without one are unchanged."""
+    m = _QTY.match(line)
+    if not m:
+        return line
+    qty = sum(Fraction(p) for p in m.group(1).split()) * Fraction(str(factor))
+    # ponytail: decimal output (0.5, not 1/2); add fraction formatting if users want it
+    return f"{round(float(qty), 2):g}{m.group(2)}"
+
+
+@app.get("/recipes/{recipe_id}/scaled")
+def get_scaled_recipe(recipe_id: int, factor: float = Query(..., gt=0, le=1000)):
+    recipe = get_recipe(recipe_id)
+    recipe["ingredients"] = [scale_ingredient(i, factor) for i in recipe["ingredients"]]
+    return recipe
