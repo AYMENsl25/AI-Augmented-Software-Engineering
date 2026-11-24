@@ -99,22 +99,41 @@ def get_recipe(recipe_id: int):
 import re
 from fractions import Fraction
 
-# Leading quantity: "200", "1.5", "1/2", or "1 1/2", followed by the rest of the line.
-_QTY = re.compile(r"^\s*(\d+\s+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?)(.*)$", re.S)
+# Leading quantity: "200", "1.5", "1,5", "1/2", "1 1/2", optionally a range "2-3" / "2–3".
+_NUM = r"\d+\s+\d+/\d+|\d+/\d+|\d+(?:[.,]\d+)?"
+_QTY = re.compile(rf"^\s*({_NUM})(?:\s*([-–])\s*({_NUM}))?(.*)$", re.S)
+
+
+def _fmt(qty: Fraction) -> str:
+    x = float(qty)
+    r = round(x, 2)
+    # ponytail: decimal output (0.5, not 1/2); add fraction formatting if users want it
+    return f"{r:g}" if r or not x else f"{x:.2g}"  # never show a nonzero amount as "0"
+
+
+def _scale(num: str, factor: float) -> str:
+    qty = sum(Fraction(p.replace(",", ".")) for p in num.split()) * Fraction(str(factor))
+    return _fmt(qty)
 
 
 def scale_ingredient(line: str, factor: float) -> str:
-    """Scale the leading quantity of an ingredient line; lines without one are unchanged."""
+    """Scale the leading quantity (or range) of an ingredient line; others are unchanged."""
     m = _QTY.match(line)
     if not m:
         return line
-    qty = sum(Fraction(p) for p in m.group(1).split()) * Fraction(str(factor))
-    # ponytail: decimal output (0.5, not 1/2); add fraction formatting if users want it
-    return f"{round(float(qty), 2):g}{m.group(2)}"
+    low, dash, high, rest = m.groups()
+    try:
+        out = _scale(low, factor)
+        if high:
+            out += dash + _scale(high, factor)
+    except ZeroDivisionError:  # "1/0 cup" is user input; leave it alone
+        return line
+    return out + rest
 
 
 @app.get("/recipes/{recipe_id}/scaled")
-def get_scaled_recipe(recipe_id: int, factor: float = Query(..., gt=0, le=1000)):
+def get_scaled_recipe(recipe_id: int, factor: float = Query(..., ge=0.01, le=1000)):
     recipe = get_recipe(recipe_id)
     recipe["ingredients"] = [scale_ingredient(i, factor) for i in recipe["ingredients"]]
+    recipe["factor"] = factor
     return recipe

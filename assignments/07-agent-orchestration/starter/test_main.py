@@ -60,3 +60,30 @@ def test_scaled_bad_factor_and_missing_recipe():
     assert client.get(f"/recipes/{rid}/scaled?factor=-1").status_code == 422
     assert client.get(f"/recipes/{rid}/scaled").status_code == 422
     assert client.get("/recipes/99999/scaled?factor=2").status_code == 404
+
+
+def test_scale_ranges():
+    assert scale_ingredient("2-3 eggs", 2) == "4-6 eggs"
+    assert scale_ingredient("1 – 1 1/2 cups milk", 2) == "2–3 cups milk"
+
+
+def test_scale_decimal_comma():
+    assert scale_ingredient("1,5 l water", 2) == "3 l water"
+
+
+def test_scale_zero_denominator_unchanged():
+    assert scale_ingredient("1/0 cup", 2) == "1/0 cup"
+    rid = client.post("/recipes", json={"title": "Z", "ingredients": ["1/0 cup"]}).json()["id"]
+    r = client.get(f"/recipes/{rid}/scaled?factor=2")
+    assert r.status_code == 200 and r.json()["ingredients"] == ["1/0 cup"]
+
+
+def test_scale_small_never_zero():
+    assert scale_ingredient("0.001 g yeast", 0.5) == "0.0005 g yeast"
+    assert scale_ingredient("1/3 tsp salt", 0.01) == "0.0033 tsp salt"
+
+
+def test_scaled_echoes_factor_and_min_factor():
+    rid = client.post("/recipes", json={"title": "F", "ingredients": ["2 eggs"]}).json()["id"]
+    assert client.get(f"/recipes/{rid}/scaled?factor=1.5").json()["factor"] == 1.5
+    assert client.get(f"/recipes/{rid}/scaled?factor=0.001").status_code == 422
