@@ -1,0 +1,19 @@
+name: week6-habit-tracker
+on:
+  push:
+    paths: ["assignments/06-agentic-code-review-and-testing/starter/**", ".github/workflows/week6-habit-tracker.yml"]
+  pull_request:
+    paths: ["assignments/06-agentic-code-review-and-testing/starter/**", ".github/workflows/week6-habit-tracker.yml"]
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: assignments/06-agentic-code-review-and-testing/starter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: sh check.sh
