@@ -220,7 +220,7 @@ Use `prompts/system.md`, and `submission/session_system.md` if it was captured.
    - one about **tool usage**.
 3. **Context injection.** Is `GEMINI.md`'s content in the exported `system.md`? If not,
    where and how does it reach the model? Show evidence from the trace, or point to the
-   source file and line in the Gemini CLI repo. (You'll go deep on context files in Week 5.
+   source file and line in the Gemini CLI repo. (You'll go deep on context files in Week 4.
    Here, just find where the content enters.)
 
 ## Part III — Tool design (25 pts)

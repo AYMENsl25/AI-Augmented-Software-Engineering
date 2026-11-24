@@ -1,4 +1,4 @@
-# Week 4 — Build a Custom MCP Server: The Data Explorer
+# Week 5 — Build a Custom MCP Server: The Data Explorer
 
 **Estimated time: ~3 hours.**
 
@@ -16,15 +16,20 @@ harden it, then use it from an MCP client.
 ---
 
 ## Setup
-The starter is in [`starter/`](starter/) — a `FastMCP` server over the free, no-key
-**REST Countries** API, with `search_countries` implemented as a worked example.
+The starter is in [`starter/`](starter/) — a `FastMCP` server over the open, no-key
+**[mledoze/countries](https://github.com/mledoze/countries)** dataset (the data REST
+Countries was built on), with `search_countries` implemented as a worked example.
+
+> REST Countries' free v3.1 API was retired in October 2026 and its replacement needs an
+> API key, so the starter fetches the dataset directly from GitHub. It is still an HTTPS
+> call with real failure modes (timeouts, HTTP errors) that your tools must handle.
 ```bash
 cd starter && pip install -r requirements.txt
 python server.py   # runs over STDIO
 ```
 
 ## What to do
-1. **Study** the provided `search_countries` tool: input validation, the API call,
+1. **Study** the provided `search_countries` tool: input validation, the data fetch,
    error handling, and the model-friendly return shape.
 2. **Implement a second tool**, `get_country_details(name)`, returning currencies,
    languages, borders, and the flag URL — reusing the same error-handling pattern.
@@ -51,4 +56,4 @@ python server.py   # runs over STDIO
 
 ## References
 - MCP server quickstart: https://modelcontextprotocol.io/quickstart/server
-- REST Countries API: https://restcountries.com
+- Country dataset: https://github.com/mledoze/countries
