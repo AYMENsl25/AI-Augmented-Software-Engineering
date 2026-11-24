@@ -11,8 +11,10 @@ Test:
     pytest
 """
 import json
+import re
 import sqlite3
 from contextlib import closing
+from fractions import Fraction
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
@@ -106,10 +108,10 @@ def get_recipe(recipe_id: int):
 def shopping_list(ids: str = ""):
     parts = [p.strip() for p in ids.split(",") if p.strip()]
     if not parts:
-        raise HTTPException(status_code=400, detail="ids is required, e.g. ?ids=1,2")
-    bad = [p for p in parts if not p.isdigit()]
+        raise HTTPException(status_code=422, detail="ids is required, e.g. ?ids=1,2")
+    bad = [p for p in parts if not (p.isascii() and p.isdigit())]
     if bad:
-        raise HTTPException(status_code=400, detail=f"non-integer ids: {', '.join(bad)}")
+        raise HTTPException(status_code=422, detail=f"ids must be positive integers, got: {', '.join(bad)}")
     recipe_ids = list(dict.fromkeys(int(p) for p in parts))  # dedupe, keep order
     with closing(get_db()) as conn:
         rows = conn.execute(
@@ -126,8 +128,6 @@ def shopping_list(ids: str = ""):
     return {"recipe_ids": recipe_ids, "items": [v for v in items.values() if v]}
 
 # --- Task 3: ingredient scaling ---
-import re
-from fractions import Fraction
 
 # Leading quantity: "200", "1.5", "1,5", "1/2", "1 1/2", optionally a range "2-3" / "2–3".
 _NUM = r"\d+\s+\d+/\d+|\d+/\d+|\d[\d.,]*\d|\d"

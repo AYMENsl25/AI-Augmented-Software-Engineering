@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from main import app
+from main import app, scale_ingredient
 
 client = TestClient(app)
 
@@ -44,13 +44,13 @@ def test_shopping_list_merges_and_dedupes():
 
 
 def test_shopping_list_missing_or_empty_ids():
-    assert client.get("/shopping-list").status_code == 400
-    assert client.get("/shopping-list?ids=").status_code == 400
+    assert client.get("/shopping-list").status_code == 422
+    assert client.get("/shopping-list?ids=").status_code == 422
 
 
 def test_shopping_list_non_integer():
     r = client.get("/shopping-list?ids=1,abc")
-    assert r.status_code == 400 and "abc" in r.json()["detail"]
+    assert r.status_code == 422 and "abc" in r.json()["detail"]
 
 
 def test_shopping_list_unknown_ids():
@@ -85,7 +85,6 @@ def test_tag_filter_empty_means_no_filter():
     assert client.get("/recipes", params={"tag": "   "}).json() == client.get("/recipes").json()
 
 # --- Task 3: ingredient scaling ---
-from main import scale_ingredient
 
 
 def test_scale_ingredient_units():
