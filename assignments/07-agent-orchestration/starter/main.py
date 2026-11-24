@@ -93,3 +93,28 @@ def get_recipe(recipe_id: int):
     if row is None:
         raise HTTPException(status_code=404, detail="unknown recipe")
     return _row_to_recipe(row)
+
+
+# --- Task 1: shopping list ---
+@app.get("/shopping-list")
+def shopping_list(ids: str = ""):
+    parts = [p.strip() for p in ids.split(",") if p.strip()]
+    if not parts:
+        raise HTTPException(status_code=400, detail="ids is required, e.g. ?ids=1,2")
+    bad = [p for p in parts if not p.isdigit()]
+    if bad:
+        raise HTTPException(status_code=400, detail=f"non-integer ids: {', '.join(bad)}")
+    recipe_ids = list(dict.fromkeys(int(p) for p in parts))  # dedupe, keep order
+    with closing(get_db()) as conn:
+        rows = conn.execute(
+            f"SELECT * FROM recipes WHERE id IN ({','.join('?' * len(recipe_ids))})", recipe_ids
+        ).fetchall()
+    found = {r["id"]: r for r in rows}
+    missing = [i for i in recipe_ids if i not in found]
+    if missing:
+        raise HTTPException(status_code=404, detail=f"unknown recipe ids: {missing}")
+    items = {}
+    for i in recipe_ids:
+        for ing in json.loads(found[i]["ingredients"]):
+            items.setdefault(ing.strip().casefold(), ing.strip())
+    return {"recipe_ids": recipe_ids, "items": [v for v in items.values() if v]}
